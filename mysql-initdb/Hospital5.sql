@@ -378,7 +378,6 @@ INSERT INTO XetNghiem (maXN, maLoaiXN, tenXN, chiPhi, thoiGianTraKetQua) VALUES
 ('XN004', 'LXN003', 'Chức năng gan', 150000, '3 giờ');
 
 
-
 -- INSERT INTO ChiTietDonThuoc (maCTDT, maDT, maThuoc, soLuong, lieuDung) VALUES
 -- ('CTDT001', 'DT001', 'TH001', 20, '1 viên/lần, 3 lần/ngày khi đau'),
 -- ('CTDT002', 'DT002', 'TH003', 30, '1 viên/lần, 1 lần/ngày trước khi ngủ'),
