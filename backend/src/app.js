@@ -1,5 +1,6 @@
 const express = require('express');
 const winston = require('winston');
+const { authenticate } = require('./middleware/auth');
 const authRoutes = require('./modules/auth/routes');
 const userRoutes = require('./modules/user/routes');
 const appointmentRoutes = require('./modules/appointment/routes');
@@ -29,6 +30,15 @@ app.use((req, res, next) => {
     logger.info(`[${req.method}] ${req.url} - Body: ${JSON.stringify(req.body)}`);
     next();
 });
+
+// Áp dụng authentication cho các route cần bảo mật (trừ auth)
+app.use('/api/users', authenticate);
+app.use('/api/appointments', authenticate);
+app.use('/api/medical-records', authenticate);
+app.use('/api/pharmacy', authenticate);
+app.use('/api/lab-tests', authenticate);
+app.use('/api/billing', authenticate);
+app.use('/api/notifications', authenticate);
 
 // Mount routes
 app.use('/api/auth', authRoutes);

@@ -1,4 +1,4 @@
-
+version: '3'
 services:
   mysql:
     image: mysql:8.0
@@ -10,7 +10,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./mysql-initdb:/docker-entrypoint-initdb.d # Thêm dòng này
+      - ./mysql-initdb:/docker-entrypoint-initdb.d
     networks:
       - hospital-network
 
@@ -28,6 +28,10 @@ services:
       - DB_PORT=3306
       - PORT=4000
       - JWT_SECRET=secretkey
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
     networks:
       - hospital-network
 

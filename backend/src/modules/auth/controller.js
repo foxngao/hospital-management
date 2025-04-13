@@ -2,26 +2,36 @@ const TaiKhoan = require('./model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-exports.register = async (req, res) => {
-    try {
-        const { tenDangNhap, matKhau, email, maNhom } = req.body;
-        const hashedPassword = await bcrypt.hash(matKhau, 10);
+exports.register = [
+    ...require('../../middleware/validation').validateUser,
+    async (req, res) => {
+        console.log('Đang xử lý đăng ký...');
+        
+        try {
+            const { tenDangNhap, matKhau, email, maNhom } = req.body;
 
-        // Tự động tạo maTK (ví dụ: TK + timestamp)
-        const maTK = `TK${Date.now()}`;
+            // Chỉ cho phép bệnh nhân tự tạo tài khoản
+            if (maNhom !== 'BENHNHAN') {
+                return res.status(403).json({ message: 'Chỉ Admin được tạo tài khoản cho bác sĩ và nhân sự' });
+            }
 
-        const newUser = await TaiKhoan.create({
-            maTK,
-            tenDangNhap,
-            matKhau: hashedPassword,
-            email,
-            maNhom,
-        });
-        res.status(201).json({ message: 'Đăng ký tài khoản thành công', user: newUser });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi khi đăng ký: ' + error.message });
-    }
-};
+            // Sinh giá trị duy nhất cho maTK
+            const maTK = `TK_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+            const hashedPassword = await bcrypt.hash(matKhau, 10);
+            const newUser = await TaiKhoan.create({
+                maTK, // Thêm giá trị maTK
+                tenDangNhap,
+                matKhau: hashedPassword,
+                email,
+                maNhom,
+            });
+            res.status(201).json({ message: 'Đăng ký tài khoản thành công', user: newUser });
+        } catch (error) {
+            res.status(500).json({ message: 'Lỗi khi đăng ký: ' + error.message });
+        }
+    },
+];
 
 exports.login = async (req, res) => {
     try {
@@ -31,7 +41,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Thông tin đăng nhập không đúng' });
         }
 
-        const token = jwt.sign({ maTK: user.maTK }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ maTK: user.maTK, maNhom: user.maNhom }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ message: 'Đăng nhập thành công', token });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi đăng nhập: ' + error.message });
