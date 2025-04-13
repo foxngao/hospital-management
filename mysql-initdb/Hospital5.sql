@@ -1,5 +1,9 @@
-﻿-- 1. Tạo database và sử dụng
-CREATE DATABASE IF NOT EXISTS Hospital5;
+﻿-- Đặt mã hóa UTF-8 ngay từ đầu
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
+-- 1. Tạo database với mã hóa UTF-8
+CREATE DATABASE IF NOT EXISTS Hospital5 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE Hospital5;
 
 -- 2. Các bảng KHÔNG có phụ thuộc khóa ngoại
@@ -7,38 +11,38 @@ CREATE TABLE IF NOT EXISTS NhomQuyen (
     maNhom VARCHAR(100) PRIMARY KEY,
     tenNhom VARCHAR(50) NOT NULL UNIQUE,
     moTa VARCHAR(255)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS KhoaPhong (
     maKhoa VARCHAR(100) PRIMARY KEY,
     tenKhoa VARCHAR(100) NOT NULL,
     moTa TEXT
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS CaKham (
     maCa VARCHAR(100) PRIMARY KEY,
     tenCa VARCHAR(50) NOT NULL,
     thoiGianBatDau TIME NOT NULL,
     thoiGianKetThuc TIME NOT NULL
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS NhomThuoc (
     maNhom VARCHAR(100) PRIMARY KEY,
     tenNhom VARCHAR(100) NOT NULL,
     moTa TEXT
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS DonViTinh (
     maDVT VARCHAR(100) PRIMARY KEY,
     tenDVT VARCHAR(20) NOT NULL,
     moTa VARCHAR(100)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS LoaiXetNghiem (
     maLoaiXN VARCHAR(100) PRIMARY KEY,
     tenLoai VARCHAR(100) NOT NULL,
     moTa TEXT
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 3. Các bảng phụ thuộc MỨC 1
 CREATE TABLE IF NOT EXISTS TaiKhoan (
@@ -49,7 +53,7 @@ CREATE TABLE IF NOT EXISTS TaiKhoan (
     trangThai TINYINT(1) DEFAULT 1,
     maNhom VARCHAR(100) NOT NULL,
     FOREIGN KEY (maNhom) REFERENCES NhomQuyen(maNhom)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Thuoc (
     maThuoc VARCHAR(100) PRIMARY KEY,
@@ -70,7 +74,7 @@ CREATE TABLE IF NOT EXISTS Thuoc (
     trangThai TINYINT(1) DEFAULT 1,
     FOREIGN KEY (maDVT) REFERENCES DonViTinh(maDVT),
     FOREIGN KEY (maNhom) REFERENCES NhomThuoc(maNhom)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS XetNghiem (
     maXN VARCHAR(100) PRIMARY KEY,
@@ -79,7 +83,7 @@ CREATE TABLE IF NOT EXISTS XetNghiem (
     chiPhi DECIMAL(12,2) NOT NULL,
     thoiGianTraKetQua VARCHAR(100),
     FOREIGN KEY (maLoaiXN) REFERENCES LoaiXetNghiem(maLoaiXN)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 4. Các bảng phụ thuộc MỨC 2
 CREATE TABLE IF NOT EXISTS BacSi (
@@ -92,7 +96,7 @@ CREATE TABLE IF NOT EXISTS BacSi (
     trinhDo VARCHAR(50),
     FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK),
     FOREIGN KEY (maKhoa) REFERENCES KhoaPhong(maKhoa)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS NhanSuYTe (
     maNS VARCHAR(100) PRIMARY KEY,
@@ -104,7 +108,7 @@ CREATE TABLE IF NOT EXISTS NhanSuYTe (
     capBac VARCHAR(50),
     FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK),
     FOREIGN KEY (maKhoa) REFERENCES KhoaPhong(maKhoa)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS BenhNhan (
     maBN VARCHAR(100) PRIMARY KEY,
@@ -116,7 +120,7 @@ CREATE TABLE IF NOT EXISTS BenhNhan (
     soDienThoai VARCHAR(15),
     bhyt VARCHAR(20),
     FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS ThongTinDuocLy (
     maTTDL VARCHAR(100) PRIMARY KEY,
@@ -131,7 +135,7 @@ CREATE TABLE IF NOT EXISTS ThongTinDuocLy (
     cachDung TEXT,
     baoQuan TEXT,
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS ThanhPhanThuoc (
     maThanhPhan VARCHAR(100) PRIMARY KEY,
@@ -140,7 +144,7 @@ CREATE TABLE IF NOT EXISTS ThanhPhanThuoc (
     hamLuong VARCHAR(50) NOT NULL,
     donViTinh VARCHAR(20),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 5. Các bảng phụ thuộc MỨC 3
 CREATE TABLE IF NOT EXISTS UyQuyen (
@@ -153,7 +157,7 @@ CREATE TABLE IF NOT EXISTS UyQuyen (
     moTa TEXT,
     FOREIGN KEY (maNguoiUyQuyen) REFERENCES TaiKhoan(maTK),
     FOREIGN KEY (maNguoiDuocUyQuyen) REFERENCES TaiKhoan(maTK)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS TroLyBacSi (
     maTroLy VARCHAR(100) PRIMARY KEY,
@@ -162,7 +166,7 @@ CREATE TABLE IF NOT EXISTS TroLyBacSi (
     phamViUyQuyen VARCHAR(255),
     FOREIGN KEY (maNS) REFERENCES NhanSuYTe(maNS),
     FOREIGN KEY (maBacSi) REFERENCES BacSi(maBS)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS LichLamViec (
     maLichLV VARCHAR(100) PRIMARY KEY,
@@ -171,17 +175,17 @@ CREATE TABLE IF NOT EXISTS LichLamViec (
     ngayLamViec DATETIME NOT NULL,
     FOREIGN KEY (maNS) REFERENCES NhanSuYTe(maNS),
     FOREIGN KEY (maCa) REFERENCES CaKham(maCa)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS HoSoBenhAn (
     maHSBA VARCHAR(100) PRIMARY KEY,
     maBN VARCHAR(100) NOT NULL,
-    ngayLap DATE DEFAULT (CURRENT_DATE),  -- ĐÃ SỬA --
+    ngayLap DATE DEFAULT (CURRENT_DATE),
     dotKhamBenh DATETIME,
     lichSuBenh TEXT,
     ghiChu TEXT,
     FOREIGN KEY (maBN) REFERENCES BenhNhan(maBN)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS LichHen (
     maLH VARCHAR(100) PRIMARY KEY,
@@ -193,7 +197,7 @@ CREATE TABLE IF NOT EXISTS LichHen (
     FOREIGN KEY (maBN) REFERENCES BenhNhan(maBN),
     FOREIGN KEY (maBS) REFERENCES BacSi(maBS),
     FOREIGN KEY (maCa) REFERENCES CaKham(maCa)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS YeuCauXetNghiem (
     maYeuCau VARCHAR(100) PRIMARY KEY,
@@ -204,7 +208,7 @@ CREATE TABLE IF NOT EXISTS YeuCauXetNghiem (
     trangThai VARCHAR(20) DEFAULT 'CHO_THUC_HIEN',
     FOREIGN KEY (maBN) REFERENCES BenhNhan(maBN),
     FOREIGN KEY (maBS) REFERENCES BacSi(maBS)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 6. Các bảng phụ thuộc MỨC 4
 CREATE TABLE IF NOT EXISTS ChiTietYeuCauXN (
@@ -213,7 +217,7 @@ CREATE TABLE IF NOT EXISTS ChiTietYeuCauXN (
     maXN VARCHAR(100) NOT NULL,
     FOREIGN KEY (maYeuCau) REFERENCES YeuCauXetNghiem(maYeuCau),
     FOREIGN KEY (maXN) REFERENCES XetNghiem(maXN)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS PhieuKham (
     maPK VARCHAR(100) PRIMARY KEY,
@@ -228,7 +232,7 @@ CREATE TABLE IF NOT EXISTS PhieuKham (
     FOREIGN KEY (maHSBA) REFERENCES HoSoBenhAn(maHSBA),
     FOREIGN KEY (maBN) REFERENCES BenhNhan(maBN),
     FOREIGN KEY (maBS) REFERENCES BacSi(maBS)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS DonThuoc (
     maDT VARCHAR(100) PRIMARY KEY,
@@ -239,7 +243,7 @@ CREATE TABLE IF NOT EXISTS DonThuoc (
     FOREIGN KEY (maHSBA) REFERENCES HoSoBenhAn(maHSBA),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
     FOREIGN KEY (maBS) REFERENCES BacSi(maBS)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS PhieuXetNghiem (
     maPhieuXN VARCHAR(100) PRIMARY KEY,
@@ -254,7 +258,7 @@ CREATE TABLE IF NOT EXISTS PhieuXetNghiem (
     FOREIGN KEY (maXN) REFERENCES XetNghiem(maXN),
     FOREIGN KEY (maHSBA) REFERENCES HoSoBenhAn(maHSBA),
     FOREIGN KEY (maNS) REFERENCES NhanSuYTe(maNS)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS GioHang (
     maGH VARCHAR(100) PRIMARY KEY,
@@ -262,7 +266,7 @@ CREATE TABLE IF NOT EXISTS GioHang (
     ngayTao DATETIME DEFAULT (CURRENT_TIMESTAMP),
     trangThai VARCHAR(20) DEFAULT 'CHO_THANH_TOAN',
     FOREIGN KEY (maBN) REFERENCES BenhNhan(maBN)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS HoaDon (
     maHD VARCHAR(100) PRIMARY KEY,
@@ -273,7 +277,7 @@ CREATE TABLE IF NOT EXISTS HoaDon (
     maNS VARCHAR(100) NOT NULL,
     FOREIGN KEY (maBN) REFERENCES BenhNhan(maBN),
     FOREIGN KEY (maNS) REFERENCES NhanSuYTe(maNS)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS TinTuc (
     maTin VARCHAR(100) PRIMARY KEY,
@@ -282,7 +286,7 @@ CREATE TABLE IF NOT EXISTS TinTuc (
     ngayDang DATE NOT NULL,
     maNS VARCHAR(100) NOT NULL,
     FOREIGN KEY (maNS) REFERENCES NhanSuYTe(maNS)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS PhanHoi (
     maPH VARCHAR(100) PRIMARY KEY,
@@ -291,7 +295,7 @@ CREATE TABLE IF NOT EXISTS PhanHoi (
     ngayGui DATETIME NOT NULL,
     trangThai VARCHAR(20),
     FOREIGN KEY (maBN) REFERENCES BenhNhan(maBN)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 7. Các bảng phụ thuộc MỨC 5
 CREATE TABLE IF NOT EXISTS ChiTietDonThuoc (
@@ -302,7 +306,7 @@ CREATE TABLE IF NOT EXISTS ChiTietDonThuoc (
     lieuDung VARCHAR(255),
     FOREIGN KEY (maDT) REFERENCES DonThuoc(maDT),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS ChiTietHoaDon (
     maCTHD VARCHAR(100) PRIMARY KEY,
@@ -313,7 +317,7 @@ CREATE TABLE IF NOT EXISTS ChiTietHoaDon (
     soLuong INT DEFAULT 1,
     thanhTien DECIMAL(12,2) NOT NULL,
     FOREIGN KEY (maHD) REFERENCES HoaDon(maHD)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS ChiTietGioHang (
     maCTGH VARCHAR(100) PRIMARY KEY,
@@ -324,7 +328,7 @@ CREATE TABLE IF NOT EXISTS ChiTietGioHang (
     soLuong INT DEFAULT 1,
     thanhTien DECIMAL(12,2) NOT NULL,
     FOREIGN KEY (maGH) REFERENCES GioHang(maGH)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS ThanhToan (
     maTT VARCHAR(100) PRIMARY KEY,
@@ -334,7 +338,7 @@ CREATE TABLE IF NOT EXISTS ThanhToan (
     trangThai VARCHAR(20) DEFAULT 'CHO_THANH_TOAN',
     ngayThanhToan DATETIME DEFAULT (CURRENT_TIMESTAMP),
     FOREIGN KEY (maHD) REFERENCES HoaDon(maHD)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Dữ liệu mẫu
 INSERT INTO NhomQuyen (maNhom, tenNhom, moTa) VALUES
