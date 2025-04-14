@@ -13,10 +13,13 @@ const logger = winston.createLogger({
 
 exports.authenticate = async (req, res, next) => {
     try {
-        const token = req.headers['authorization'];
-        if (!token) {
+        const authHeader = req.headers['authorization'];
+        if (!authHeader) {
             return res.status(403).json({ message: 'Không có token, truy cập bị từ chối' });
         }
+
+        // Loại bỏ prefix "Bearer " nếu có
+        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await TaiKhoan.findByPk(decoded.maTK);
@@ -46,5 +49,4 @@ exports.authorize = (roles) => {
     };
 };
 
-// Middleware đặc biệt cho Admin
 exports.adminOnly = exports.authorize(['ADMIN']);

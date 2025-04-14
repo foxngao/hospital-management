@@ -11,7 +11,8 @@ exports.register = [
             const { tenDangNhap, matKhau, email, maNhom } = req.body;
 
             // Chỉ cho phép bệnh nhân tự tạo tài khoản
-            if (maNhom !== 'BENHNHAN') {
+            if (maNhom !== 'BENHNHAN' && maNhom !== 'ADMIN') {
+                return res.status(403).json({ message: 'Chỉ bệnh nhân mới được tạo tài khoản' });
                 return res.status(403).json({ message: 'Chỉ Admin được tạo tài khoản cho bác sĩ và nhân sự' });
             }
 

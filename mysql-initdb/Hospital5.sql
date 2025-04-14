@@ -358,6 +358,10 @@ INSERT INTO NhomThuoc (maNhom, tenNhom, moTa) VALUES
 ('NH002', 'Thuốc kháng sinh', 'Các loại thuốc kháng sinh'),
 ('NH003', 'Thuốc tim mạch', 'Các loại thuốc điều trị bệnh tim mạch');
 
+INSERT INTO CaKham (maCa, tenCa, thoiGianBatDau, thoiGianKetThuc) VALUES
+('CA001', 'Ca Sáng', '08:00:00', '12:00:00'),
+('CA002', 'Ca Chiều', '13:00:00', '17:00:00');
+
 INSERT INTO DonViTinh (maDVT, tenDVT, moTa) VALUES
 ('DVT001', 'Viên', 'Đơn vị tính theo viên'),
 ('DVT002', 'Vỉ', 'Đơn vị tính theo vỉ (10 viên/vỉ)'),
@@ -367,6 +371,8 @@ INSERT INTO Thuoc (maThuoc, tenThuoc, tenHoatChat, hamLuong, maDVT, maNhom, soDa
 ('TH001', 'Paracetamol', 'Paracetamol', '500mg', 'DVT001', 'NH001', 'SDK001', 'Việt Nam', 'Dược phẩm Hà Nội', 10000, 12000, 11500, 10, 50, 24, 1),
 ('TH002', 'Amoxicillin', 'Amoxicillin', '500mg', 'DVT001', 'NH002', 'SDK002', 'Việt Nam', 'Dược phẩm Sài Gòn', 15000, 18000, 17000, 5, 30, 36, 1),
 ('TH003', 'Atorvastatin', 'Atorvastatin', '20mg', 'DVT001', 'NH003', 'SDK003', 'Thụy Sĩ', 'Pfizer', 25000, 30000, 28000, 5, 20, 48, 1);
+
+
 
 INSERT INTO LoaiXetNghiem (maLoaiXN, tenLoai, moTa) VALUES
 ('LXN001', 'Xét nghiệm máu', 'Các xét nghiệm liên quan đến máu'),
@@ -380,6 +386,8 @@ INSERT INTO XetNghiem (maXN, maLoaiXN, tenXN, chiPhi, thoiGianTraKetQua) VALUES
 ('XN002', 'LXN001', 'Đường huyết', 50000, '1 giờ'),
 ('XN003', 'LXN002', 'Tổng phân tích nước tiểu', 80000, '1.5 giờ'),
 ('XN004', 'LXN003', 'Chức năng gan', 150000, '3 giờ');
+
+
 
 
 -- INSERT INTO ChiTietDonThuoc (maCTDT, maDT, maThuoc, soLuong, lieuDung) VALUES

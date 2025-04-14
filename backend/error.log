@@ -14,3 +14,11 @@
 {"level":"error","message":"Lỗi khi khởi động server: getaddrinfo ENOTFOUND mysql"}
 {"level":"error","message":"Lỗi khi khởi động server: getaddrinfo ENOTFOUND mysql"}
 {"level":"error","message":"Lỗi khi khởi động server: getaddrinfo ENOTFOUND mysql"}
+{"level":"error","message":"Lỗi xác thực token: invalid token"}
+{"level":"error","message":"Lỗi xác thực token: invalid token"}
+{"level":"error","message":"Lỗi xác thực token: invalid token"}
+{"level":"error","message":"Lỗi xác thực token: invalid token"}
+{"level":"error","message":"Lỗi xác thực token: invalid token"}
+{"level":"error","message":"Lỗi xác thực token: invalid token"}
+{"level":"error","message":"Lỗi xác thực token: invalid token"}
+{"level":"error","message":"Lỗi xác thực token: jwt expired"}
