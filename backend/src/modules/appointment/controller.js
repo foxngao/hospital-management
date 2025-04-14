@@ -1,9 +1,8 @@
 const Appointment = require('./model');
-
-
+const { validateAppointment } = require('../../middleware/validation');
 
 exports.createAppointment = [
-    ...require('../../middleware/validation').validateAppointment,
+    validateAppointment, // Bỏ ... vì validateAppointment đã là mảng
     async (req, res) => {
         try {
             const { maBN, maBS, maCa, ngayHen } = req.body;
@@ -31,14 +30,14 @@ exports.getAppointments = async (req, res) => {
 };
 
 exports.updateAppointment = [
-    ...require('../../middleware/validation').validateAppointment,
+    validateAppointment, // Bỏ ... vì validateAppointment đã là mảng
     async (req, res) => {
         try {
             const { maLH } = req.params;
             const { maBN, maBS, maCa, ngayHen, trangThai } = req.body;
 
             // Kiểm tra quyền: chỉ bác sĩ được sửa
-            if ( req.user.maNhom !== 'BACSI') {
+            if (req.user.maNhom !== 'BACSI') {
                 return res.status(403).json({ message: 'Chỉ bác sĩ được sửa lịch hẹn' });
             }
 
@@ -60,8 +59,8 @@ exports.deleteAppointment = [
         try {
             const { maLH } = req.params;
 
-            // Kiểm tra quyền: chỉ  bác sĩ được xóa
-            if ( req.user.maNhom !== 'BACSI') {
+            // Kiểm tra quyền: chỉ bác sĩ được xóa
+            if (req.user.maNhom !== 'BACSI') {
                 return res.status(403).json({ message: 'Chỉ bác sĩ được xóa lịch hẹn' });
             }
 

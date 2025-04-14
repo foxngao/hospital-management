@@ -20,6 +20,11 @@ const TaiKhoan = sequelize.define('TaiKhoan', {
         type: DataTypes.STRING(100),
         unique: true,
     },
+    maNhanVien: { // Thêm trường mã nhân viên cho bác sĩ/nhân sự
+        type: DataTypes.STRING(50),
+        unique: true,
+        allowNull: true, // Chỉ bắt buộc với bác sĩ/nhân sự
+    },
     trangThai: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,

@@ -27,7 +27,16 @@ exports.authenticate = async (req, res, next) => {
             return res.status(401).json({ message: 'Người dùng không tồn tại' });
         }
 
-        req.user = user;
+        // Kiểm tra trạng thái tài khoản
+        if (!user.trangThai) {
+            return res.status(403).json({ message: 'Tài khoản đã bị khóa' });
+        }
+
+        // Chỉ lưu thông tin cần thiết
+        req.user = {
+            maTK: user.maTK,
+            maNhom: user.maNhom,
+        };
         next();
     } catch (error) {
         logger.error('Lỗi xác thực token: ' + error.message);
@@ -50,3 +59,5 @@ exports.authorize = (roles) => {
 };
 
 exports.adminOnly = exports.authorize(['ADMIN']);
+exports.staffOnly = exports.authorize(['BACSI', 'NHANSU']);
+exports.patientOnly = exports.authorize(['BENHNHAN']);
