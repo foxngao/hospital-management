@@ -22,3 +22,6 @@
 {"level":"error","message":"Lỗi xác thực token: invalid token"}
 {"level":"error","message":"Lỗi xác thực token: invalid token"}
 {"level":"error","message":"Lỗi xác thực token: jwt expired"}
+{"level":"error","message":"Lỗi khi khởi động server: connect ECONNREFUSED 172.18.0.2:3306"}
+{"level":"error","message":"Lỗi xác thực token: jwt expired"}
+{"level":"error","message":"Lỗi xác thực token: jwt expired"}

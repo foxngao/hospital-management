@@ -1,8 +1,8 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
-const BenhNhan = require('../../models/BenhNhan');
-const BacSi = require('../../models/BacSi');
-const CaKham = require('../../models/CaKham');
+// const BenhNhan = require('../../models/BenhNhan');
+// const BacSi = require('../../models/BacSi');
+// const CaKham = require('../../models/CaKham');
 
 const Appointment = sequelize.define('LichHen', {
     maLH: {
@@ -12,13 +12,25 @@ const Appointment = sequelize.define('LichHen', {
     maBN: {
         type: DataTypes.STRING(100),
         allowNull: false,
+        references: { // Thêm khóa ngoại
+            model: 'BenhNhan',
+            key: 'maBN'
+        }
     },
     maBS: {
         type: DataTypes.STRING(100),
+        references: { // Thêm khóa ngoại
+            model: 'BacSi',
+            key: 'maBS'
+        }
     },
     maCa: {
         type: DataTypes.STRING(100),
         allowNull: false,
+        references: { // Thêm khóa ngoại
+            model: 'CaKham',
+            key: 'maCa'
+        }
     },
     ngayHen: {
         type: DataTypes.DATE,
@@ -33,8 +45,11 @@ const Appointment = sequelize.define('LichHen', {
     timestamps: false,
 });
 
-Appointment.belongsTo(BenhNhan, { foreignKey: 'maBN' });
-Appointment.belongsTo(BacSi, { foreignKey: 'maBS' });
-Appointment.belongsTo(CaKham, { foreignKey: 'maCa' });
+// Thêm phần associate
+Appointment.associate = (models) => {
+    Appointment.belongsTo(models.BenhNhan, { foreignKey: 'maBN' });
+    Appointment.belongsTo(models.BacSi, { foreignKey: 'maBS' });
+    Appointment.belongsTo(models.CaKham, { foreignKey: 'maCa' });
+};
 
 module.exports = Appointment;

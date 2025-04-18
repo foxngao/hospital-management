@@ -1,23 +1,61 @@
 const Appointment = require('./model');
+const BenhNhan = require('../../models/BenhNhan');
+const BacSi = require('../../models/BacSi'); // Thêm dòng import này
 const { validateAppointment } = require('../../middleware/validation');
 
 exports.createAppointment = [
-    validateAppointment, // Bỏ ... vì validateAppointment đã là mảng
+    validateAppointment,
     async (req, res) => {
         try {
-            const { maBN, maBS, maCa, ngayHen } = req.body;
+            let { maBN, maBS, maCa, ngayHen } = req.body;
+            
+            // Chuẩn hóa mã BN (bỏ dấu <> nếu có)
+            maBN = maBN.replace(/[<>]/g, '');
 
-            // Kiểm tra quyền: chỉ bệnh nhân hoặc bác sĩ được đặt
+            // Kiểm tra quyền
             if (req.user.maNhom !== 'BENHNHAN' && req.user.maNhom !== 'BACSI') {
                 return res.status(403).json({ message: 'Chỉ bệnh nhân và bác sĩ được đặt lịch hẹn' });
             }
 
-            const newAppointment = await Appointment.create({ maLH: generateAppointmentId(), maBN, maBS, maCa, ngayHen, trangThai: 'ChoXacNhan' });
-            res.status(201).json({ message: 'Tạo lịch hẹn thành công', appointment: newAppointment });
+            // Kiểm tra bệnh nhân
+            const patient = await BenhNhan.findOne({ where: { maBN } });
+            if (!patient) {
+                return res.status(400).json({ 
+                    message: 'Mã bệnh nhân không tồn tại',
+                    suggestion: `Hãy kiểm tra lại mã BN hoặc tạo mới bệnh nhân với mã ${maBN}`
+                });
+            }
+
+            // Kiểm tra bác sĩ (nếu có)
+            if (maBS) {
+                maBS = maBS.replace(/[<>]/g, '');
+                const doctor = await BacSi.findOne({ where: { maBS } });
+                if (!doctor) {
+                    return res.status(400).json({ message: 'Mã bác sĩ không tồn tại' });
+                }
+            }
+
+            // Tạo lịch hẹn
+            const newAppointment = await Appointment.create({
+                maLH: generateAppointmentId(),
+                maBN,
+                maBS: maBS || null,
+                maCa,
+                ngayHen,
+                trangThai: 'ChoXacNhan'
+            });
+
+            res.status(201).json({
+                message: 'Tạo lịch hẹn thành công',
+                appointment: newAppointment
+            });
         } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi tạo lịch hẹn: ' + error.message });
+            res.status(500).json({ 
+                message: 'Lỗi khi tạo lịch hẹn',
+                error: error.message 
+            });
         }
-    },
+    }
 ];
 
 exports.getAppointments = async (req, res) => {
