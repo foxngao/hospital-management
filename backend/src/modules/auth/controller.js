@@ -1,250 +1,103 @@
-const { Op } = require('sequelize');
-const TaiKhoan = require('./model');
-const BenhNhan = require('../../models/BenhNhan');
-const BacSi = require('../../models/BacSi');
-const NhanSuYTe = require('../../models/NhanSuYTe');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const { TaiKhoan, BenhNhan, BacSi, NhomQuyen } = require("../../models");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
+const { validationResult } = require("express-validator");
 
-// ==================== HÀM HỖ TRỢ TẠO MÃ TỰ ĐỘNG ====================
-async function generateNextCode(prefix, model, field) {
-    const lastRecord = await model.findOne({
-        order: [[field, 'DESC']],
-        where: {
-            [field]: {
-                [Op.like]: `${prefix}%`
-            }
-        }
+/**
+ * Đăng ký tài khoản mới
+ * Tự động gán vào bảng BenhNhan nếu maNhom là 'BENHNHAN'
+ * Tự động gán vào bảng BacSi nếu maNhom là 'BACSI'
+ * Tự động gán vào bảng NhanVien nếu maNhom là 'STAFF'
+ * Tự động gán vào bảng NhomQuyen nếu maNhom là 'ADMIN'
+ */
+exports.register = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+
+  const { tenDangNhap, matKhau, email, maNhom } = req.body;
+
+  try {
+    const existingUser = await TaiKhoan.findOne({ where: { tenDangNhap } });
+    if (existingUser)
+      return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
+
+    const hashedPassword = await bcrypt.hash(matKhau, 10);
+    const maTK = uuidv4();
+
+    const newUser = await TaiKhoan.create({
+      maTK,
+      tenDangNhap,
+      matKhau: hashedPassword,
+      email,
+      maNhom,
+      trangThai: true,
     });
 
-    if (!lastRecord) {
-        return `${prefix}01`;
+    // Nếu là bệnh nhân thì tạo hồ sơ bênh nhân liên kết
+    if (maNhom === 'BENHNHAN') {
+      await BenhNhan.create({
+        maBN: maTK,
+        hoTen: tenDangNhap,
+        email,
+        maTK: maTK,
+      });
+
     }
 
-    const lastNumberStr = lastRecord[field].replace(prefix, '');
-    const lastNumber = parseInt(lastNumberStr, 10);
-    const nextNumber = isNaN(lastNumber) ? 1 : lastNumber + 1;
-
-    return `${prefix}${nextNumber.toString().padStart(2, '0')}`;
-}
-
-// ==================== ĐĂNG KÝ BỆNH NHÂN ====================
-exports.registerPatient = [
-    ...require('../../middleware/validation').validatePatient,
-    async (req, res) => {
-        try {
-            const { tenDangNhap, matKhau, email, hoTen } = req.body;
-
-            const existingUser = await TaiKhoan.findOne({ where: { tenDangNhap } });
-            if (existingUser) {
-                return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại' });
-            }
-
-            const [maTK, maBN] = await Promise.all([
-                generateNextCode('TK', TaiKhoan, 'maTK'),
-                generateNextCode('BN', BenhNhan, 'maBN')
-            ]);
-
-            const hashedPassword = await bcrypt.hash(matKhau, 10);
-
-            const [newUser] = await Promise.all([
-                TaiKhoan.create({
-                    maTK,
-                    tenDangNhap,
-                    matKhau: hashedPassword,
-                    email,
-                    maNhom: 'BENHNHAN',
-                }),
-                BenhNhan.create({
-                    maBN,
-                    maTK,
-                    hoTen,
-                })
-            ]);
-
-            res.status(201).json({ message: 'Đăng ký thành công', user: newUser });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi: ' + error.message });
-        }
-    }
-];
-
-// ==================== ĐĂNG KÝ BỆNH NHÂN BỞI NHÂN SỰ ====================
-exports.registerPatientByStaff = [
-    ...require('../../middleware/validation').validatePatient,
-    async (req, res) => {
-        try {
-            if (req.user.maNhom !== 'NHANSU') {
-                return res.status(403).json({ message: 'Chỉ nhân sự được tạo tài khoản bệnh nhân' });
-            }
-
-            const { tenDangNhap, matKhau, email, hoTen } = req.body;
-
-            const existingUser = await TaiKhoan.findOne({ where: { tenDangNhap } });
-            if (existingUser) {
-                return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại' });
-            }
-
-            const [maTK, maBN] = await Promise.all([
-                generateNextCode('TK', TaiKhoan, 'maTK'),
-                generateNextCode('BN', BenhNhan, 'maBN')
-            ]);
-
-            const hashedPassword = await bcrypt.hash(matKhau, 10);
-
-            const [newUser] = await Promise.all([
-                TaiKhoan.create({
-                    maTK,
-                    tenDangNhap,
-                    matKhau: hashedPassword,
-                    email,
-                    maNhom: 'BENHNHAN',
-                }),
-                BenhNhan.create({
-                    maBN,
-                    maTK,
-                    hoTen,
-                })
-            ]);
-
-            res.status(201).json({ message: 'Tạo tài khoản bệnh nhân thành công', user: newUser });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi: ' + error.message });
-        }
-    }
-];
-
-// ==================== ĐĂNG KÝ NHÂN VIÊN ====================
-exports.registerStaff = [
-    ...require('../../middleware/validation').validateStaff,
-    async (req, res) => {
-        try {
-            if (req.user.maNhom !== 'ADMIN') {
-                return res.status(403).json({ message: 'Chỉ Admin được tạo tài khoản nhân viên' });
-            }
-
-            const { tenDangNhap, matKhau, email, maNhom,  hoTen, maKhoa, loaiNS } = req.body;
-
-            const [existingUser, existingStaff] = await Promise.all([
-                TaiKhoan.findOne({ where: { tenDangNhap } }),
-                // TaiKhoan.findOne({ where: { maNhanVien } })
-            ]);
-
-            if (existingUser) {
-                return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại' });
-            }
-            // if (existingStaff) {
-            //     return res.status(400).json({ message: 'Mã nhân viên đã tồn tại' });
-            // }
-
-            const [maTK, hashedPassword] = await Promise.all([
-                generateNextCode('TK', TaiKhoan, 'maTK'),
-                bcrypt.hash(matKhau, 10)
-            ]);
-
-            const newUser = await TaiKhoan.create({
-                maTK,
-                tenDangNhap,
-                matKhau: hashedPassword,
-                email,
-                maNhom,
-            });
-
-            if (maNhom === 'BACSI') {
-                const maBS = await generateNextCode('BS', BacSi, 'maBS');
-                await BacSi.create({
-                    maBS,
-                    maTK,
-                    maKhoa,
-                    hoTen,
-                });
-            } else if (maNhom === 'NHANSU') {
-                const maNS = await generateNextCode('NS', NhanSuYTe, 'maNS');
-                await NhanSuYTe.create({
-                    maNS,
-                    maTK,
-                    maKhoa,
-                    hoTen,
-                    loaiNS: loaiNS || 'TIEP_DON',
-                });
-            }
-
-            res.status(201).json({ message: 'Tạo tài khoản nhân viên thành công', user: newUser });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi: ' + error.message });
-        }
-    }
-];
-
-// ==================== ĐĂNG KÝ ADMIN ====================
-exports.registerAdmin = [
-    ...require('../../middleware/validation').validateAdmin,
-    async (req, res) => {
-        try {
-            const existingAdmin = await TaiKhoan.findOne({ where: { maNhom: 'ADMIN' } });
-            if (existingAdmin) {
-                return res.status(400).json({ message: 'Hệ thống đã có Admin' });
-            }
-
-            const { tenDangNhap, matKhau, email, hoTen } = req.body;
-
-            const existingUser = await TaiKhoan.findOne({ where: { tenDangNhap } });
-            if (existingUser) {
-                return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại' });
-            }
-
-            const [maTK, hashedPassword] = await Promise.all([
-                generateNextCode('TK', TaiKhoan, 'maTK'),
-                bcrypt.hash(matKhau, 10)
-            ]);
-
-            const newAdmin = await TaiKhoan.create({
-                maTK,
-                tenDangNhap,
-                matKhau: hashedPassword,
-                email,
-                hoTen,
-                maNhom: 'ADMIN'
-            });
-
-            res.status(201).json({ 
-                message: 'Tạo tài khoản Admin thành công', 
-                admin: {
-                    maTK: newAdmin.maTK,
-                    tenDangNhap: newAdmin.tenDangNhap,
-                    email: newAdmin.email,
-                    hoTen: newAdmin.hoTen
-                } 
-            });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi tạo tài khoản Admin: ' + error.message });
-        }
-    }
-];
-
-// ==================== ĐĂNG NHẬP ====================
-exports.login = async (req, res) => {
-    try {
-        const { tenDangNhap, matKhau } = req.body;
-        const user = await TaiKhoan.findOne({ where: { tenDangNhap } });
-
-        if (!user || !(await bcrypt.compare(matKhau, user.matKhau))) {
-            return res.status(401).json({ message: 'Thông tin đăng nhập không đúng' });
-        }
-
-        const token = jwt.sign(
-            { maTK: user.maTK, maNhom: user.maNhom },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        res.json({ message: 'Đăng nhập thành công', token });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi: ' + error.message });
-    }
+    res.status(201).json({ message: "Đăng ký thành công", data: newUser });
+  } catch (error) {
+    console.error(" Lỗi khi đăng ký:", error);  // thêm dòng này
+    res.status(500).json({ message: "Lỗi khi đăng ký", error: error.message });
+  }
 };
 
-// ==================== ĐĂNG XUẤT ====================
-exports.logout = (req, res) => {
-    res.json({ message: 'Đăng xuất thành công' });
+/**
+ * Đăng nhập hệ thống
+ * Trả về token + thông tin người dùng
+ */
+exports.login = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+
+  const { tenDangNhap, matKhau } = req.body;
+
+  try {
+    const user = await TaiKhoan.findOne({ where: { tenDangNhap } });
+
+    if (!user)
+      return res.status(404).json({ message: "Tài khoản không tồn tại" });
+
+    if (!user.trangThai)
+      return res.status(403).json({ message: "Tài khoản đang bị khóa" });
+
+    const match = await bcrypt.compare(matKhau, user.matKhau);
+    if (!match)
+      return res.status(401).json({ message: "Mật khẩu không đúng" });
+
+    const token = jwt.sign(
+      { maTK: user.maTK, tenDangNhap: user.tenDangNhap, maNhom: user.maNhom },
+      process.env.JWT_SECRET || "secret123",
+      { expiresIn: "1d" }
+    );
+
+    const nhomQuyen = await NhomQuyen.findOne({ where: { maNhom: user.maNhom } });
+
+    res.status(200).json({
+      token,
+      message: "Đăng nhập thành công",
+      user: {
+        maTK: user.maTK,
+        tenDangNhap: user.tenDangNhap,
+        email: user.email,
+        maNhom: user.maNhom,
+        tenNhom: nhomQuyen?.tenNhom || "Không xác định",
+      },
+    });
+  } catch (error) {
+    console.error(" Lỗi khi đăng ký:", error);
+    res.status(500).json({ message: "Lỗi khi đăng nhập", error: error.message });
+  }
 };

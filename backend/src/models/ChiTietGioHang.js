@@ -1,45 +1,34 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const GioHang = require('./GioHang');
-
-const ChiTietGioHang = sequelize.define('ChiTietGioHang', {
+module.exports = (sequelize, DataTypes) => {
+  const ChiTietGioHang = sequelize.define("ChiTietGioHang", {
     maCTGH: {
-        type: DataTypes.STRING(100),
-        primaryKey: true,
+      type: DataTypes.STRING,
+      primaryKey: true,
     },
     maGH: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        references: {
-            model: GioHang,
-            key: 'maGH',
-        },
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    loaiDichVu: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
-    },
-    maDichVu: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-    },
-    donGia: {
-        type: DataTypes.DECIMAL(12, 2),
-        allowNull: false,
+    maThuoc: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     soLuong: {
-        type: DataTypes.INTEGER,
-        defaultValue: 1,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    thanhTien: {
-        type: DataTypes.DECIMAL(12, 2),
-        allowNull: false,
-    },
-}, {
-    tableName: 'ChiTietGioHang',
+  }, {
+    tableName: "ChiTietGioHang",
     timestamps: false,
-});
+  });
 
-ChiTietGioHang.belongsTo(GioHang, { foreignKey: 'maGH' });
+  ChiTietGioHang.associate = (models) => {
+    ChiTietGioHang.belongsTo(models.GioHang, { foreignKey: "maGH" });
+    ChiTietGioHang.belongsTo(models.Thuoc, { foreignKey: "maThuoc" });
 
-module.exports = ChiTietGioHang;
+    // Optional:
+    // models.GioHang.hasMany(ChiTietGioHang, { foreignKey: "maGH" });
+    // models.Thuoc.hasMany(ChiTietGioHang, { foreignKey: "maThuoc" });
+  };
+
+  return ChiTietGioHang;
+};

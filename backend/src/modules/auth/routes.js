@@ -1,15 +1,43 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const authController = require('./controller');
-const { authenticate, adminOnly, authorize } = require('../../middleware/auth');
+const { body } = require("express-validator");
+const controller = require("./controller");
 
-// Public routes
-router.post('/register-patient', authController.registerPatient);
-router.post('/login', authController.login);
-router.post('/init-admin', authController.registerAdmin); 
+/**
+ * Middleware kiểm tra đầu vào cho đăng ký
+ */
+const registerValidator = [
+  body("tenDangNhap")
+    .notEmpty()
+    .withMessage("Tên đăng nhập là bắt buộc")
+    .isLength({ min: 4 })
+    .withMessage("Tên đăng nhập phải từ 4 ký tự trở lên"),
+  body("matKhau")
+    .isLength({ min: 6 })
+    .withMessage("Mật khẩu tối thiểu 6 ký tự"),
+  body("email")
+    .optional()
+    .isEmail()
+    .withMessage("Email không hợp lệ"),
+  body("maNhom")
+    .notEmpty()
+    .withMessage("Nhóm quyền là bắt buộc"),
+];
 
-// Protected routes
-router.post('/register-patient-by-staff', authenticate, authorize(['NHANSU']), authController.registerPatientByStaff);
-router.post('/register-staff', authenticate, adminOnly, authController.registerStaff);
+/**
+ * Middleware kiểm tra đầu vào cho đăng nhập
+ */
+const loginValidator = [
+  body("tenDangNhap")
+    .notEmpty()
+    .withMessage("Tên đăng nhập là bắt buộc"),
+  body("matKhau")
+    .notEmpty()
+    .withMessage("Mật khẩu là bắt buộc"),
+];
+
+// Định tuyến
+router.post("/register", registerValidator, controller.register);
+router.post("/login", loginValidator, controller.login);
 
 module.exports = router;

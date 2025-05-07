@@ -1,8 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const LoaiXetNghiem = require('./LoaiXetNghiem');
-
-const XetNghiem = sequelize.define('XetNghiem', {
+module.exports = (sequelize, DataTypes) => {
+  const XetNghiem = sequelize.define("XetNghiem", {
     maXN: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -10,10 +7,7 @@ const XetNghiem = sequelize.define('XetNghiem', {
     maLoaiXN: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: LoaiXetNghiem,
-            key: 'maLoaiXN',
-        },
+        
     },
     tenXN: {
         type: DataTypes.STRING(100),
@@ -31,7 +25,9 @@ const XetNghiem = sequelize.define('XetNghiem', {
     timestamps: false,
 });
 
-XetNghiem.belongsTo(LoaiXetNghiem, { foreignKey: 'maLoaiXN' });
-LoaiXetNghiem.hasMany(XetNghiem, { foreignKey: 'maLoaiXN' });
+  XetNghiem.associate = (models) => {
+    XetNghiem.belongsTo(models.LoaiXetNghiem, { foreignKey: 'maLoaiXN' });
+  };
 
-module.exports = XetNghiem;
+  return XetNghiem;
+};

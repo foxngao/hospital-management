@@ -1,7 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-
-const KhoaPhong = sequelize.define('KhoaPhong', {
+module.exports = (sequelize, DataTypes) => {
+  const KhoaPhong = sequelize.define("KhoaPhong", {
     maKhoa: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -18,4 +16,9 @@ const KhoaPhong = sequelize.define('KhoaPhong', {
     timestamps: false,
 });
 
-module.exports = KhoaPhong;
+  KhoaPhong.associate = (models) => {
+    // No associations
+  };
+
+  return KhoaPhong;
+};

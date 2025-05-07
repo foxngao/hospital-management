@@ -1,42 +1,33 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const DonThuoc = require('./DonThuoc');
-const Thuoc = require('./Thuoc');
-
-const ChiTietDonThuoc = sequelize.define('ChiTietDonThuoc', {
+module.exports = (sequelize, DataTypes) => {
+  const ChiTietDonThuoc = sequelize.define("ChiTietDonThuoc", {
     maCTDT: {
-        type: DataTypes.STRING(100),
-        primaryKey: true,
+      type: DataTypes.STRING(100),
+      primaryKey: true,
     },
     maDT: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        references: {
-            model: DonThuoc,
-            key: 'maDT',
-        },
+      type: DataTypes.STRING(100),
+      allowNull: false,
     },
     maThuoc: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        references: {
-            model: Thuoc,
-            key: 'maThuoc',
-        },
+      type: DataTypes.STRING(100),
+      allowNull: false,
     },
     soLuong: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     lieuDung: {
-        type: DataTypes.STRING(255),
+      type: DataTypes.STRING(255),
     },
-}, {
+  }, {
     tableName: 'ChiTietDonThuoc',
     timestamps: false,
-});
+  });
 
-ChiTietDonThuoc.belongsTo(DonThuoc, { foreignKey: 'maDT' });
-ChiTietDonThuoc.belongsTo(Thuoc, { foreignKey: 'maThuoc' });
+  ChiTietDonThuoc.associate = (models) => {
+    ChiTietDonThuoc.belongsTo(models.DonThuoc, { foreignKey: 'maDT' });
+    ChiTietDonThuoc.belongsTo(models.Thuoc, { foreignKey: 'maThuoc' });
+  };
 
-module.exports = ChiTietDonThuoc;
+  return ChiTietDonThuoc;
+};

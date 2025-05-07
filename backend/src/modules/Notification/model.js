@@ -1,30 +1,35 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../../config/database');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../../config/sequelize");
 
-const Notification = sequelize.define('Notification', {
-    maThongBao: {
-        type: DataTypes.STRING(100),
-        primaryKey: true,
-    },
-    maNguoiNhan: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-    },
-    noiDung: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-    },
-    ngayGui: {
-        type: DataTypes.DATE,
-        defaultValue: Sequelize.NOW,
-    },
-    daDoc: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-}, {
-    tableName: 'Notification',
-    timestamps: false,
+const ThongBao = sequelize.define("ThongBao", {
+  maTB: {
+    type: DataTypes.STRING,
+    primaryKey: true,
+  },
+  tieuDe: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  noiDung: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  daDoc: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  maNguoiNhan: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  thoiGian: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  loaiThongBao: {
+    type: DataTypes.ENUM("he_thong", "ca_nhan"),
+    defaultValue: "ca_nhan",
+  },
 });
 
-module.exports = Notification;
+module.exports = ThongBao;

@@ -1,8 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const NhanSuYTe = require('./NhanSuYTe');
-
-const TinTuc = sequelize.define('TinTuc', {
+module.exports = (sequelize, DataTypes) => {
+  const TinTuc = sequelize.define("TinTuc", {
     maTin: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -21,16 +18,16 @@ const TinTuc = sequelize.define('TinTuc', {
     maNS: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: NhanSuYTe,
-            key: 'maNS',
-        },
+        
     },
 }, {
     tableName: 'TinTuc',
     timestamps: false,
 });
 
-TinTuc.belongsTo(NhanSuYTe, { foreignKey: 'maNS' });
+  TinTuc.associate = (models) => {
+    TinTuc.belongsTo(models.NhanSuYTe, { foreignKey: 'maNS' });
+  };
 
-module.exports = TinTuc;
+  return TinTuc;
+};

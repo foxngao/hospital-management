@@ -1,9 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const BenhNhan = require('./BenhNhan');
-const NhanSuYTe = require('./NhanSuYTe');
-
-const HoaDon = sequelize.define('HoaDon', {
+module.exports = (sequelize, DataTypes) => {
+  const HoaDon = sequelize.define("HoaDon", {
     maHD: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -11,14 +7,11 @@ const HoaDon = sequelize.define('HoaDon', {
     maBN: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: BenhNhan,
-            key: 'maBN',
-        },
+        
     },
     ngayLap: {
         type: DataTypes.DATE,
-        defaultValue: Sequelize.NOW,
+        defaultValue: DataTypes.NOW,
     },
     tongTien: {
         type: DataTypes.DECIMAL(15, 2),
@@ -31,17 +24,17 @@ const HoaDon = sequelize.define('HoaDon', {
     maNS: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: NhanSuYTe,
-            key: 'maNS',
-        },
+        
     },
 }, {
     tableName: 'HoaDon',
     timestamps: false,
 });
 
-HoaDon.belongsTo(BenhNhan, { foreignKey: 'maBN' });
-HoaDon.belongsTo(NhanSuYTe, { foreignKey: 'maNS' });
+  HoaDon.associate = (models) => {
+    HoaDon.belongsTo(models.BenhNhan, { foreignKey: 'maBN' });
+    HoaDon.belongsTo(models.NhanSuYTe, { foreignKey: 'maNS' });
+  };
 
-module.exports = HoaDon;
+  return HoaDon;
+};

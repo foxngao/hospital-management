@@ -1,8 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const HoaDon = require('./HoaDon');
-
-const ThanhToan = sequelize.define('ThanhToan', {
+module.exports = (sequelize, DataTypes) => {
+  const ThanhToan = sequelize.define("ThanhToan", {
     maTT: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -10,10 +7,7 @@ const ThanhToan = sequelize.define('ThanhToan', {
     maHD: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: HoaDon,
-            key: 'maHD',
-        },
+        
     },
     soTien: {
         type: DataTypes.DECIMAL(15, 2),
@@ -29,13 +23,16 @@ const ThanhToan = sequelize.define('ThanhToan', {
     },
     ngayThanhToan: {
         type: DataTypes.DATE,
-        defaultValue: Sequelize.NOW,
+        defaultValue: DataTypes.NOW,
     },
 }, {
     tableName: 'ThanhToan',
     timestamps: false,
 });
 
-ThanhToan.belongsTo(HoaDon, { foreignKey: 'maHD' });
+  ThanhToan.associate = (models) => {
+    ThanhToan.belongsTo(models.HoaDon, { foreignKey: 'maHD' });
+  };
 
-module.exports = ThanhToan;
+  return ThanhToan;
+};

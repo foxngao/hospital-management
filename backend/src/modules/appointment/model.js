@@ -1,8 +1,8 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
-// const BenhNhan = require('../../models/BenhNhan');
-// const BacSi = require('../../models/BacSi');
-// const CaKham = require('../../models/CaKham');
+const BenhNhan = require('../../models/BenhNhan');
+const BacSi = require('../../models/BacSi');
+const CaKham = require('../../models/CaKham');
 
 const Appointment = sequelize.define('LichHen', {
     maLH: {

@@ -1,8 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const BenhNhan = require('./BenhNhan');
-
-const GioHang = sequelize.define('GioHang', {
+module.exports = (sequelize, DataTypes) => {
+  const GioHang = sequelize.define("GioHang", {
     maGH: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -10,14 +7,11 @@ const GioHang = sequelize.define('GioHang', {
     maBN: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: BenhNhan,
-            key: 'maBN',
-        },
+        
     },
     ngayTao: {
         type: DataTypes.DATE,
-        defaultValue: Sequelize.NOW,
+        defaultValue: DataTypes.NOW,
     },
     trangThai: {
         type: DataTypes.STRING(20),
@@ -28,6 +22,9 @@ const GioHang = sequelize.define('GioHang', {
     timestamps: false,
 });
 
-GioHang.belongsTo(BenhNhan, { foreignKey: 'maBN' });
+  GioHang.associate = (models) => {
+    GioHang.belongsTo(models.BenhNhan, { foreignKey: 'maBN' });
+  };
 
-module.exports = GioHang;
+  return GioHang;
+};

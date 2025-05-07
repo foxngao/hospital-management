@@ -1,10 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const HoSoBenhAn = require('./HoSoBenhAn');
-const BenhNhan = require('./BenhNhan');
-const BacSi = require('./BacSi');
-
-const PhieuKham = sequelize.define('PhieuKham', {
+module.exports = (sequelize, DataTypes) => {
+  const PhieuKham = sequelize.define("PhieuKham", {
     maPK: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -12,30 +7,21 @@ const PhieuKham = sequelize.define('PhieuKham', {
     maHSBA: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: HoSoBenhAn,
-            key: 'maHSBA',
-        },
+        
     },
     maBN: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: BenhNhan,
-            key: 'maBN',
-        },
+        
     },
     maBS: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: BacSi,
-            key: 'maBS',
-        },
+        
     },
     ngayKham: {
         type: DataTypes.DATE,
-        defaultValue: Sequelize.NOW,
+        defaultValue: DataTypes.NOW,
     },
     trieuChung: {
         type: DataTypes.TEXT,
@@ -55,8 +41,11 @@ const PhieuKham = sequelize.define('PhieuKham', {
     timestamps: false,
 });
 
-PhieuKham.belongsTo(HoSoBenhAn, { foreignKey: 'maHSBA' });
-PhieuKham.belongsTo(BenhNhan, { foreignKey: 'maBN' });
-PhieuKham.belongsTo(BacSi, { foreignKey: 'maBS' });
+  PhieuKham.associate = (models) => {
+    PhieuKham.belongsTo(models.HoSoBenhAn, { foreignKey: 'maHSBA' });
+    PhieuKham.belongsTo(models.BenhNhan, { foreignKey: 'maBN' });
+    PhieuKham.belongsTo(models.BacSi, { foreignKey: 'maBS' });
+  };
 
-module.exports = PhieuKham;
+  return PhieuKham;
+};

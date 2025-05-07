@@ -1,9 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const NhanSuYTe = require('./NhanSuYTe');
-const CaKham = require('./CaKham');
-
-const LichLamViec = sequelize.define('LichLamViec', {
+module.exports = (sequelize, DataTypes) => {
+  const LichLamViec = sequelize.define("LichLamViec", {
     maLichLV: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -11,18 +7,12 @@ const LichLamViec = sequelize.define('LichLamViec', {
     maNS: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: NhanSuYTe,
-            key: 'maNS',
-        },
+        
     },
     maCa: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: CaKham,
-            key: 'maCa',
-        },
+        
     },
     ngayLamViec: {
         type: DataTypes.DATE,
@@ -33,7 +23,10 @@ const LichLamViec = sequelize.define('LichLamViec', {
     timestamps: false,
 });
 
-LichLamViec.belongsTo(NhanSuYTe, { foreignKey: 'maNS' });
-LichLamViec.belongsTo(CaKham, { foreignKey: 'maCa' });
+  LichLamViec.associate = (models) => {
+    LichLamViec.belongsTo(models.NhanSuYTe, { foreignKey: 'maNS' });
+    LichLamViec.belongsTo(models.CaKham, { foreignKey: 'maCa' });
+  };
 
-module.exports = LichLamViec;
+  return LichLamViec;
+};

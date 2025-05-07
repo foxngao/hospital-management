@@ -1,8 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const TaiKhoan = require('./TaiKhoan');
-
-const UyQuyen = sequelize.define('UyQuyen', {
+module.exports = (sequelize, DataTypes) => {
+  const UyQuyen = sequelize.define("UyQuyen", {
     maUyQuyen: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -10,18 +7,12 @@ const UyQuyen = sequelize.define('UyQuyen', {
     maNguoiUyQuyen: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: TaiKhoan,
-            key: 'maTK',
-        },
+        
     },
     maNguoiDuocUyQuyen: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: TaiKhoan,
-            key: 'maTK',
-        },
+        
     },
     loaiUyQuyen: {
         type: DataTypes.STRING(50),
@@ -43,7 +34,10 @@ const UyQuyen = sequelize.define('UyQuyen', {
     timestamps: false,
 });
 
-UyQuyen.belongsTo(TaiKhoan, { foreignKey: 'maNguoiUyQuyen', as: 'NguoiUyQuyen' });
-UyQuyen.belongsTo(TaiKhoan, { foreignKey: 'maNguoiDuocUyQuyen', as: 'NguoiDuocUyQuyen' });
+  UyQuyen.associate = (models) => {
+    UyQuyen.belongsTo(models.TaiKhoan, { foreignKey: 'maNguoiUyQuyen', as: 'NguoiUyQuyen' });
+    UyQuyen.belongsTo(models.TaiKhoan, { foreignKey: 'maNguoiDuocUyQuyen', as: 'NguoiDuocUyQuyen' });
+  };
 
-module.exports = UyQuyen;
+  return UyQuyen;
+};

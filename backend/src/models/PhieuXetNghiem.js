@@ -1,11 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const YeuCauXetNghiem = require('./YeuCauXetNghiem');
-const XetNghiem = require('./XetNghiem');
-const NhanSuYTe = require('./NhanSuYTe');
-const HoSoBenhAn = require('./HoSoBenhAn');
-
-const PhieuXetNghiem = sequelize.define('PhieuXetNghiem', {
+module.exports = (sequelize, DataTypes) => {
+  const PhieuXetNghiem = sequelize.define("PhieuXetNghiem", {
     maPhieuXN: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -13,32 +7,20 @@ const PhieuXetNghiem = sequelize.define('PhieuXetNghiem', {
     maYeuCau: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: YeuCauXetNghiem,
-            key: 'maYeuCau',
-        },
+        
     },
     maXN: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: XetNghiem,
-            key: 'maXN',
-        },
+        
     },
     maNS: {
         type: DataTypes.STRING(100),
-        references: {
-            model: NhanSuYTe,
-            key: 'maNS',
-        },
+        
     },
     maHSBA: {
         type: DataTypes.STRING(100),
-        references: {
-            model: HoSoBenhAn,
-            key: 'maHSBA',
-        },
+        
     },
     ngayThucHien: {
         type: DataTypes.DATE,
@@ -54,9 +36,12 @@ const PhieuXetNghiem = sequelize.define('PhieuXetNghiem', {
     timestamps: false,
 });
 
-PhieuXetNghiem.belongsTo(YeuCauXetNghiem, { foreignKey: 'maYeuCau' });
-PhieuXetNghiem.belongsTo(XetNghiem, { foreignKey: 'maXN' });
-PhieuXetNghiem.belongsTo(NhanSuYTe, { foreignKey: 'maNS' });
-PhieuXetNghiem.belongsTo(HoSoBenhAn, { foreignKey: 'maHSBA' });
+  PhieuXetNghiem.associate = (models) => {
+    PhieuXetNghiem.belongsTo(models.YeuCauXetNghiem, { foreignKey: 'maYeuCau' });
+    PhieuXetNghiem.belongsTo(models.XetNghiem, { foreignKey: 'maXN' });
+    PhieuXetNghiem.belongsTo(models.NhanSuYTe, { foreignKey: 'maNS' });
+    PhieuXetNghiem.belongsTo(models.HoSoBenhAn, { foreignKey: 'maHSBA' });
+  };
 
-module.exports = PhieuXetNghiem;
+  return PhieuXetNghiem;
+};

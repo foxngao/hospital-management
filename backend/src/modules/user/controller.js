@@ -1,85 +1,73 @@
-const User = require('./model');
-const TaiKhoan = require('../auth/model');
+const { TaiKhoan, BenhNhan, BacSi, NhanSuYTe } = require("../../models");
 
-exports.updateUser = [
-    ...require('../../middleware/validation').validateUser,
-    async (req, res) => {
-        try {
-            const { maUser } = req.params; // Lấy maUser từ URL
-            const { hoTen, loaiUser, maKhoa, maNhom } = req.body;
+/**
+ * Lấy thông tin hồ sơ người dùng hiện tại (dựa vào token)
+ */
+exports.getProfile = async (req, res) => {
+  const { maTK, maNhom } = req.user;
 
-            // Kiểm tra quyền: chỉ Admin được sửa
-            if (req.user.maNhom !== 'ADMIN') {
-                return res.status(403).json({ message: 'Chỉ Admin được sửa thông tin người dùng' });
-            }
+  try {
+    const taiKhoan = await TaiKhoan.findOne({
+      where: { maTK },
+      attributes: { exclude: ["matKhau"] },
+    });
 
-            const user = await User.findByPk(maUser);
-            if (!user) {
-                return res.status(404).json({ message: 'Người dùng không tồn tại' });
-            }
+    if (!taiKhoan)
+      return res.status(404).json({ message: "Không tìm thấy tài khoản" });
 
-            await user.update({ hoTen, loaiUser, maKhoa, maNhom });
-            res.json({ message: 'Cập nhật người dùng thành công', user });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi cập nhật người dùng: ' + error.message });
-        }
-    },
-];
+    let hoSo = null;
 
-exports.deleteUser = [
-    async (req, res) => {
-        try {
-            const { maUser } = req.params;
-
-            // Kiểm tra quyền: chỉ Admin được xóa
-            if (req.user.maNhom !== 'ADMIN') {
-                return res.status(403).json({ message: 'Chỉ Admin được xóa người dùng' });
-            }
-
-            const user = await User.findByPk(maUser);
-            if (!user) {
-                return res.status(404).json({ message: 'Người dùng không tồn tại' });
-            }
-
-            await user.destroy();
-            res.json({ message: 'Xóa người dùng thành công' });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi xóa người dùng: ' + error.message });
-        }
-    },
-];
-
-exports.createUser = [
-    ...require('../../middleware/validation').validateUser,
-    async (req, res) => {
-        try {
-            const { maTK, hoTen, loaiUser, maKhoa, maNhom } = req.body;
-
-            // Chỉ Admin được tạo tài khoản bác sĩ và nhân sự
-            if (maNhom === 'BACSI' || maNhom === 'NHANSU') {
-                if (req.user.maNhom !== 'ADMIN') {
-                    return res.status(403).json({ message: 'Chỉ Admin được tạo tài khoản này' });
-                }
-            }
-
-            const newUser = await User.create({ maUser: generateUserId(), maTK, hoTen, loaiUser, maKhoa, maNhom });
-            res.status(201).json({ message: 'Tạo người dùng thành công', user: newUser });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi tạo người dùng: ' + error.message });
-        }
-    },
-];
-
-exports.getAllUsers = async (req, res) => {
-    try {
-        const users = await User.findAll({ include: [TaiKhoan] });
-        res.json({ message: 'Lấy danh sách người dùng thành công', users });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi khi lấy người dùng: ' + error.message });
+    if (maNhom === "BENHNHAN") {
+      hoSo = await BenhNhan.findOne({ where: { maTaiKhoan: maTK } });
+    } else if (maNhom === "BACSI") {
+      hoSo = await BacSi.findOne({ where: { maTK } });
+    } else {
+      hoSo = await NhanSuYTe.findOne({ where: { maTK } });
     }
+
+    res.json({ taiKhoan, hoSo });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi truy xuất thông tin", error: error.message });
+  }
 };
 
-// Hàm hỗ trợ
-function generateUserId() {
-    return 'USER' + Date.now();
-}
+/**
+ * Cập nhật thông tin hồ sơ cá nhân (dành cho người dùng đã đăng nhập)
+ */
+exports.updateProfile = async (req, res) => {
+  const { maTK, maNhom } = req.user;
+  const { hoTen, diaChi, soDienThoai, email, ngaySinh } = req.body;
+
+  try {
+    const taiKhoan = await TaiKhoan.findByPk(maTK);
+    if (!taiKhoan)
+      return res.status(404).json({ message: "Không tìm thấy tài khoản" });
+
+    // Cập nhật email nếu có
+    if (email) taiKhoan.email = email;
+    await taiKhoan.save();
+
+    let affected = 0;
+
+    if (maNhom === "BENHNHAN") {
+      affected = await BenhNhan.update(
+        { hoTen, diaChi, soDienThoai, ngaySinh },
+        { where: { maTaiKhoan: maTK } }
+      );
+    } else if (maNhom === "BACSI") {
+      affected = await BacSi.update(
+        { hoTen, chuyenMon: req.body.chuyenMon, chucVu: req.body.chucVu },
+        { where: { maTK } }
+      );
+    } else {
+      affected = await NhanSuYTe.update(
+        { hoTen, diaChi, soDienThoai, capBac: req.body.capBac },
+        { where: { maTK } }
+      );
+    }
+
+    res.json({ message: "Cập nhật hồ sơ thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi cập nhật thông tin", error: error.message });
+  }
+};

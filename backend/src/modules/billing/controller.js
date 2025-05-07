@@ -1,69 +1,91 @@
-const Billing = require('./model');
-const { authenticate } = require('../../middleware/auth');
-exports.createBill = [
-    authenticate,
-    async (req, res) => {
-        try {
-            if (req.user.maNhom !== 'NHANSU') {
-                return res.status(403).json({ message: 'Chỉ nhân sự được lập hóa đơn' });
-            }
+const { HoaDon } = require("../../models");
+const { v4: uuidv4 } = require("uuid");
+const { validationResult } = require("express-validator");
 
-            const { maBN, tongTien, maNS } = req.body;
-            const newBill = await Billing.create({ maHD: generateBillId(), maBN, tongTien, maNS });
-            res.status(201).json({ message: 'Tạo hóa đơn thành công', bill: newBill });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi tạo hóa đơn: ' + error.message });
-        }
-    },
-];
+exports.create = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
 
-exports.updateBill = [
-    authenticate,
-    async (req, res) => {
-        try {
-            if (req.user.maNhom !== 'NHANSU') {
-                return res.status(403).json({ message: 'Chỉ nhân sự được sửa hóa đơn' });
-            }
+  try {
+    const { maBN, tongTien, trangThai } = req.body;
+    const maHD = uuidv4();
 
-            const { maHD } = req.params;
-            const { maBN, tongTien, maNS } = req.body;
+    const hoaDon = await HoaDon.create({
+      maHD,
+      maBN,
+      tongTien,
+      trangThai: trangThai || "chua_thanh_toan",
+    });
 
-            const bill = await Billing.findByPk(maHD);
-            if (!bill) {
-                return res.status(404).json({ message: 'Hóa đơn không tồn tại' });
-            }
+    res.status(201).json({ message: "Tạo hóa đơn thành công", data: hoaDon });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi tạo hóa đơn", error: error.message });
+  }
+};
 
-            await bill.update({ maBN, tongTien, maNS });
-            res.json({ message: 'Cập nhật hóa đơn thành công', bill });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi cập nhật hóa đơn: ' + error.message });
-        }
-    },
-];
+exports.getById = async (req, res) => {
+  try {
+    const hoaDon = await HoaDon.findByPk(req.params.id);
+    if (!hoaDon)
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
 
-exports.deleteBill = [
-    authenticate,
-    async (req, res) => {
-        try {
-            if (req.user.maNhom !== 'NHANSU') {
-                return res.status(403).json({ message: 'Chỉ nhân sự được xóa hóa đơn' });
-            }
+    res.json(hoaDon);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi truy xuất hóa đơn", error: error.message });
+  }
+};
 
-            const { maHD } = req.params;
+exports.getByBENHNHAN = async (req, res) => {
+  try {
+    const { maNhom, maTK } = req.user;
+    const requestedId = req.params.id;
 
-            const bill = await Billing.findByPk(maHD);
-            if (!bill) {
-                return res.status(404).json({ message: 'Hóa đơn không tồn tại' });
-            }
+    // Nếu là bệnh nhân, chỉ được xem hóa đơn của chính mình
+    if (maNhom === "BENHNHAN" && requestedId !== maTK) {
+      return res.status(403).json({
+        message: "Bạn không có quyền truy cập hóa đơn của người khác",
+      });
+    }
 
-            await bill.destroy();
-            res.json({ message: 'Xóa hóa đơn thành công' });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi xóa hóa đơn: ' + error.message });
-        }
-    },
-];
+    const danhSach = await HoaDon.findAll({
+      where: { maBN: requestedId },
+    });
 
-function generateBillId() {
-    return 'HD' + Date.now();
-}
+    res.json(danhSach);
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi truy xuất danh sách hóa đơn",
+      error: error.message,
+    });
+  }
+};
+
+
+exports.update = async (req, res) => {
+  try {
+    const { tongTien, trangThai } = req.body;
+    const [updated] = await HoaDon.update(
+      { tongTien, trangThai },
+      { where: { maHD: req.params.id } }
+    );
+    if (updated === 0)
+      return res.status(404).json({ message: "Không tìm thấy để cập nhật" });
+
+    res.json({ message: "Cập nhật hóa đơn thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi cập nhật", error: error.message });
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    const deleted = await HoaDon.destroy({ where: { maHD: req.params.id } });
+    if (deleted === 0)
+      return res.status(404).json({ message: "Không tìm thấy để xoá" });
+
+    res.json({ message: "Xoá thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi xoá", error: error.message });
+  }
+};

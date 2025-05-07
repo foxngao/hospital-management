@@ -1,86 +1,111 @@
-const MedicalRecord = require('./model');
-const { authenticate } = require('../../middleware/auth');
-exports.createMedicalRecord = [
-    authenticate,
-    async (req, res) => {
-        console.log('Đang tạo hồ sơ bệnh án...');
-        try {
-            if (req.user.maNhom !== 'BACSI' && req.user.maNhom !== 'NHANSU') {
-                return res.status(403).json({ message: 'Chỉ bác sĩ và nhân sự được tạo hồ sơ bệnh án' });
-            }
+const { v4: uuidv4 } = require("uuid");
+const { validationResult } = require("express-validator");
+const HoSoBenhAn = require("../../models/HoSoBenhAn");
 
-            const { maBN, dotKhamBenh, lichSuBenh, ghiChu } = req.body;
-            const newRecord = await MedicalRecord.create({ maHSBA: generateRecordId(), maBN, dotKhamBenh, lichSuBenh, ghiChu });
-            res.status(201).json({ message: 'Tạo hồ sơ bệnh án thành công', record: newRecord });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi tạo hồ sơ: ' + error.message });
-        }
-    },
-];
+/**
+ * Lấy toàn bộ hồ sơ bệnh án – chỉ BACSI hoặc ADMIN
+ * Có thể lọc theo `maBN`
+ */
+exports.getAll = async (req, res) => {
+  try {
+    const { maBN } = req.query;
 
-exports.getMedicalRecord = [
-    authenticate,
-    async (req, res) => {
-        try {
-            const records = await MedicalRecord.findAll();
-            if (req.user.maNhom === 'BENHNHAN') {
-                // Chỉ cho phép xem hồ sơ của bản thân
-                records = records.filter(record => record.maBN === req.user.maBN);
-            }
-            res.json({ message: 'Lấy hồ sơ thành công', records });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi lấy hồ sơ: ' + error.message });
-        }
-    },
-];
+    const whereClause = maBN ? { maBN } : {};
 
-exports.updateMedicalRecord = [
-    authenticate,
-    async (req, res) => {
-        try {
-            if (req.user.maNhom !== 'BACSI' && req.user.maNhom !== 'NHANSU') {
-                return res.status(403).json({ message: 'Chỉ bác sĩ và nhân sự được sửa hồ sơ bệnh án' });
-            }
+    const result = await HoSoBenhAn.findAll({ where: whereClause });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi lấy danh sách", error: error.message });
+  }
+};
 
-            const { maHSBA } = req.params;
-            const { maBN, dotKhamBenh, lichSuBenh, ghiChu } = req.body;
+/**
+ * Xem 1 hồ sơ bệnh án cụ thể – role-based
+ */
+exports.getById = async (req, res) => {
+  try {
+    const { maTK, maNhom } = req.user;
+    const { id } = req.params;
 
-            const record = await MedicalRecord.findByPk(maHSBA);
-            if (!record) {
-                return res.status(404).json({ message: 'Hồ sơ bệnh án không tồn tại' });
-            }
+    const record = await HoSoBenhAn.findByPk(id);
+    if (!record)
+      return res.status(404).json({ message: "Không tìm thấy hồ sơ bệnh án" });
 
-            await record.update({ maBN, dotKhamBenh, lichSuBenh, ghiChu });
-            res.json({ message: 'Cập nhật hồ sơ bệnh án thành công', record });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi cập nhật hồ sơ: ' + error.message });
-        }
-    },
-];
+    // Bệnh nhân chỉ được xem hồ sơ của chính mình
+    if (maNhom === "BENHNHAN" && record.maBN !== maTK) {
+      return res.status(403).json({ message: "Bạn không có quyền truy cập hồ sơ này" });
+    }
 
-exports.deleteMedicalRecord = [
-    authenticate,
-    async (req, res) => {
-        try {
-            if (req.user.maNhom !== 'BACSI' && req.user.maNhom !== 'NHANSU') {
-                return res.status(403).json({ message: 'Chỉ bác sĩ và nhân sự được xóa hồ sơ bệnh án' });
-            }
+    res.json(record);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi truy xuất hồ sơ", error: error.message });
+  }
+};
 
-            const { maHSBA } = req.params;
+/**
+ * Tạo mới hồ sơ bệnh án – chỉ BACSI
+ */
+exports.create = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
 
-            const record = await MedicalRecord.findByPk(maHSBA);
-            if (!record) {
-                return res.status(404).json({ message: 'Hồ sơ bệnh án không tồn tại' });
-            }
+  try {
+    const { maBN, dotKhamBenh, lichSuBenh, ghiChu } = req.body;
 
-            await record.destroy();
-            res.json({ message: 'Xóa hồ sơ bệnh án thành công' });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi xóa hồ sơ: ' + error.message });
-        }
-    },
-];
+    const newRecord = await HoSoBenhAn.create({
+      maHSBA: uuidv4(),
+      maBN,
+      dotKhamBenh,
+      lichSuBenh,
+      ghiChu,
+    });
 
-function generateRecordId() {
-    return 'HSBA' + Date.now();
-}
+    res.status(201).json({ message: "Tạo hồ sơ bệnh án thành công", data: newRecord });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi tạo hồ sơ", error: error.message });
+  }
+};
+
+/**
+ * Cập nhật hồ sơ bệnh án – chỉ BACSI
+ */
+exports.update = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+
+  try {
+    const { id } = req.params;
+    const record = await HoSoBenhAn.findByPk(id);
+
+    if (!record)
+      return res.status(404).json({ message: "Không tìm thấy hồ sơ để cập nhật" });
+
+    const { dotKhamBenh, lichSuBenh, ghiChu, maBN } = req.body;
+
+    await record.update({ dotKhamBenh, lichSuBenh, ghiChu, maBN });
+
+    res.json({ message: "Cập nhật thành công", data: record });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi cập nhật", error: error.message });
+  }
+};
+
+/**
+ * Xoá hồ sơ bệnh án – chỉ ADMIN
+ */
+exports.remove = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const record = await HoSoBenhAn.findByPk(id);
+
+    if (!record)
+      return res.status(404).json({ message: "Không tìm thấy hồ sơ để xoá" });
+
+    await record.destroy();
+    res.json({ message: "Xoá hồ sơ thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi xoá", error: error.message });
+  }
+};

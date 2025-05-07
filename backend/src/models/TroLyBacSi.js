@@ -1,9 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const NhanSuYTe = require('./NhanSuYTe');
-const BacSi = require('./BacSi');
-
-const TroLyBacSi = sequelize.define('TroLyBacSi', {
+module.exports = (sequelize, DataTypes) => {
+  const TroLyBacSi = sequelize.define("TroLyBacSi", {
     maTroLy: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -11,18 +7,12 @@ const TroLyBacSi = sequelize.define('TroLyBacSi', {
     maNS: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: NhanSuYTe,
-            key: 'maNS',
-        },
+        
     },
     maBacSi: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        references: {
-            model: BacSi,
-            key: 'maBS',
-        },
+        
     },
     phamViUyQuyen: {
         type: DataTypes.STRING(255),
@@ -32,7 +22,10 @@ const TroLyBacSi = sequelize.define('TroLyBacSi', {
     timestamps: false,
 });
 
-TroLyBacSi.belongsTo(NhanSuYTe, { foreignKey: 'maNS' });
-TroLyBacSi.belongsTo(BacSi, { foreignKey: 'maBacSi' });
+  TroLyBacSi.associate = (models) => {
+    TroLyBacSi.belongsTo(models.NhanSuYTe, { foreignKey: 'maNS' });
+    TroLyBacSi.belongsTo(models.BacSi, { foreignKey: 'maBacSi' });
+  };
 
-module.exports = TroLyBacSi;
+  return TroLyBacSi;
+};

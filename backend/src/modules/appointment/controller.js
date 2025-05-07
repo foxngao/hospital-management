@@ -1,120 +1,133 @@
-const Appointment = require('./model');
-const BenhNhan = require('../../models/BenhNhan');
-const BacSi = require('../../models/BacSi'); // Thêm dòng import này
-const { validateAppointment } = require('../../middleware/validation');
+const { v4: uuidv4 } = require("uuid");
+const { validationResult } = require("express-validator");
+const { LichHen, BacSi, BenhNhan, CaKham } = require("../../models");
 
-exports.createAppointment = [
-    validateAppointment,
-    async (req, res) => {
-        try {
-            let { maBN, maBS, maCa, ngayHen } = req.body;
-            
-            // Chuẩn hóa mã BN (bỏ dấu <> nếu có)
-            maBN = maBN.replace(/[<>]/g, '');
+/**
+ * Tạo lịch hẹn mới (chỉ dành cho bệnh nhân hoặc admin)
+ */
+exports.create = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
 
-            // Kiểm tra quyền
-            if (req.user.maNhom !== 'BENHNHAN' && req.user.maNhom !== 'BACSI') {
-                return res.status(403).json({ message: 'Chỉ bệnh nhân và bác sĩ được đặt lịch hẹn' });
-            }
+  const { maBS, maCa, ngayHen, ghiChu } = req.body;
+  const maBN = req.user?.maTK; // lấy từ JWT (nếu là bệnh nhân)
 
-            // Kiểm tra bệnh nhân
-            const patient = await BenhNhan.findOne({ where: { maBN } });
-            if (!patient) {
-                return res.status(400).json({ 
-                    message: 'Mã bệnh nhân không tồn tại',
-                    suggestion: `Hãy kiểm tra lại mã BN hoặc tạo mới bệnh nhân với mã ${maBN}`
-                });
-            }
+  try {
+    const maLH = uuidv4();
 
-            // Kiểm tra bác sĩ (nếu có)
-            if (maBS) {
-                maBS = maBS.replace(/[<>]/g, '');
-                const doctor = await BacSi.findOne({ where: { maBS } });
-                if (!doctor) {
-                    return res.status(400).json({ message: 'Mã bác sĩ không tồn tại' });
-                }
-            }
+    const lichHen = await LichHen.create({
+      maLH,
+      maBN,
+      maBS,
+      maCa,
+      ngayHen,
+      ghiChu,
+      trangThai: "ChoXacNhan",
+    });
 
-            // Tạo lịch hẹn
-            const newAppointment = await Appointment.create({
-                maLH: generateAppointmentId(),
-                maBN,
-                maBS: maBS || null,
-                maCa,
-                ngayHen,
-                trangThai: 'ChoXacNhan'
-            });
-
-            res.status(201).json({
-                message: 'Tạo lịch hẹn thành công',
-                appointment: newAppointment
-            });
-        } catch (error) {
-            res.status(500).json({ 
-                message: 'Lỗi khi tạo lịch hẹn',
-                error: error.message 
-            });
-        }
-    }
-];
-
-exports.getAppointments = async (req, res) => {
-    try {
-        const appointments = await Appointment.findAll();
-        res.json({ message: 'Lấy danh sách lịch hẹn thành công', appointments });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi khi lấy lịch hẹn: ' + error.message });
-    }
+    res.status(201).json({ message: "Tạo lịch hẹn thành công", data: lichHen });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi tạo lịch hẹn", error: error.message });
+  }
+  await sendNotification({
+  maNguoiNhan: maBN, // lấy từ req.body hoặc req.user
+  tieuDe: "Lịch khám mới đã được xác nhận",
+  noiDung: `Bạn đã đặt lịch khám lúc ${thoiGian} tại khoa ${tenKhoa}`,
+    });
 };
 
-exports.updateAppointment = [
-    validateAppointment, // Bỏ ... vì validateAppointment đã là mảng
-    async (req, res) => {
-        try {
-            const { maLH } = req.params;
-            const { maBN, maBS, maCa, ngayHen, trangThai } = req.body;
+/**
+ * Lấy tất cả lịch hẹn – role-based
+ * - ADMIN: xem tất cả
+ * - BACSI: chỉ lịch của bác sĩ hiện tại
+ * - BENHNHAN: chỉ lịch của bệnh nhân hiện tại
+ */
+exports.getAll = async (req, res) => {
+  const { maNhom, maTK } = req.user;
 
-            // Kiểm tra quyền: chỉ bác sĩ được sửa
-            if (req.user.maNhom !== 'BACSI') {
-                return res.status(403).json({ message: 'Chỉ bác sĩ được sửa lịch hẹn' });
-            }
+  try {
+    let where = {};
 
-            const appointment = await Appointment.findByPk(maLH);
-            if (!appointment) {
-                return res.status(404).json({ message: 'Lịch hẹn không tồn tại' });
-            }
+    if (maNhom === "BACSI") {
+      where.maBS = maTK;
+    } else if (maNhom === "BENHNHAN") {
+      where.maBN = maTK;
+    }
 
-            await appointment.update({ maBN, maBS, maCa, ngayHen, trangThai });
-            res.json({ message: 'Cập nhật lịch hẹn thành công', appointment });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi cập nhật lịch hẹn: ' + error.message });
-        }
-    },
-];
+    const dsLichHen = await LichHen.findAll({
+      where,
+      include: [
+        { model: BacSi, attributes: ["maBS", "hoTen"] },
+        { model: BenhNhan, attributes: ["maBN", "hoTen"] },
+        { model: CaKham },
+      ],
+    });
 
-exports.deleteAppointment = [
-    async (req, res) => {
-        try {
-            const { maLH } = req.params;
+    res.status(200).json(dsLichHen);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi lấy lịch hẹn", error: error.message });
+  }
+};
 
-            // Kiểm tra quyền: chỉ bác sĩ được xóa
-            if (req.user.maNhom !== 'BACSI') {
-                return res.status(403).json({ message: 'Chỉ bác sĩ được xóa lịch hẹn' });
-            }
+/**
+ * Lấy 1 lịch hẹn theo ID – kiểm tra quyền truy cập
+ */
+exports.getById = async (req, res) => {
+  try {
+    const lichHen = await LichHen.findByPk(req.params.id);
 
-            const appointment = await Appointment.findByPk(maLH);
-            if (!appointment) {
-                return res.status(404).json({ message: 'Lịch hẹn không tồn tại' });
-            }
+    if (!lichHen)
+      return res.status(404).json({ message: "Không tìm thấy lịch hẹn" });
 
-            await appointment.destroy();
-            res.json({ message: 'Xóa lịch hẹn thành công' });
-        } catch (error) {
-            res.status(500).json({ message: 'Lỗi khi xóa lịch hẹn: ' + error.message });
-        }
-    },
-];
+    // Kiểm tra quyền truy cập
+    const { maNhom, maTK } = req.user;
+    if (
+      maNhom === "BENHNHAN" && lichHen.maBN !== maTK ||
+      maNhom === "BACSI" && lichHen.maBS !== maTK
+    ) {
+      return res.status(403).json({ message: "Không có quyền truy cập" });
+    }
 
-function generateAppointmentId() {
-    return 'LH' + Date.now();
-}
+    res.status(200).json(lichHen);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi truy vấn", error: error.message });
+  }
+};
+
+/**
+ * Cập nhật lịch hẹn – chỉ admin hoặc bác sĩ
+ */
+exports.update = async (req, res) => {
+  try {
+    const { maBS, maCa, ngayHen, ghiChu, trangThai } = req.body;
+
+    const [updated] = await LichHen.update(
+      { maBS, maCa, ngayHen, ghiChu, trangThai },
+      { where: { maLH: req.params.id } }
+    );
+
+    if (updated === 0)
+      return res.status(404).json({ message: "Không tìm thấy lịch hẹn để cập nhật" });
+
+    res.json({ message: "Cập nhật thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi cập nhật", error: error.message });
+  }
+};
+
+/**
+ * Xoá lịch hẹn – chỉ dành cho admin
+ */
+exports.remove = async (req, res) => {
+  try {
+    const deleted = await LichHen.destroy({ where: { maLH: req.params.id } });
+
+    if (deleted === 0)
+      return res.status(404).json({ message: "Không tìm thấy lịch hẹn để xoá" });
+
+    res.json({ message: "Xoá thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi xoá", error: error.message });
+  }
+};

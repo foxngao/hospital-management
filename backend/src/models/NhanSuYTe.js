@@ -1,52 +1,18 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const TaiKhoan = require('./TaiKhoan');
-const KhoaPhong = require('./KhoaPhong');
+module.exports = (sequelize, DataTypes) => {
+  const NhanSuYTe = sequelize.define("NhanSuYTe", {
+    maNS: { type: DataTypes.STRING, primaryKey: true },
+    hoTen: DataTypes.STRING,
+    chucVu: DataTypes.STRING,
+    sdt: DataTypes.STRING,
+    email: DataTypes.STRING,
+    diaChi: DataTypes.STRING,
+    maKhoa: DataTypes.STRING,
+    maTK: DataTypes.STRING,
+  }, { tableName: "NhanSuYTe", timestamps: false });
 
-const NhanSuYTe = sequelize.define('NhanSuYTe', {
-    maNS: {
-        type: DataTypes.STRING(100),
-        primaryKey: true,
-    },
-    maTK: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        unique: true,
-        references: {
-            model: TaiKhoan,
-            key: 'maTK',
-        },
-    },
-    maKhoa: {
-        type: DataTypes.STRING(100),
-        references: {
-            model: KhoaPhong,
-            key: 'maKhoa',
-        },
-    },
-    hoTen: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-    },
-    loaiNS: {
-        type: DataTypes.STRING(20),
-        allowNull: false,
-    },
-    chuyenMon: {
-        type: DataTypes.STRING(100),
-    },
-    capBac: {
-        type: DataTypes.STRING(50),
-    },
-}, {
-    tableName: 'NhanSuYTe',
-    timestamps: false,
-});
+  NhanSuYTe.associate = (models) => {
+    NhanSuYTe.belongsTo(models.TaiKhoan, { foreignKey: "maTK" });
+  };
 
-NhanSuYTe.belongsTo(TaiKhoan, { foreignKey: 'maTK' });
-TaiKhoan.hasOne(NhanSuYTe, { foreignKey: 'maTK' });
-
-NhanSuYTe.belongsTo(KhoaPhong, { foreignKey: 'maKhoa' });
-KhoaPhong.hasMany(NhanSuYTe, { foreignKey: 'maKhoa' });
-
-module.exports = NhanSuYTe;
+  return NhanSuYTe;
+};

@@ -34,7 +34,9 @@ services:
     command: ["npm", "run", "dev"]
     networks:
       - hospital-network
+  
 
+  
   adminer:
     image: adminer
     restart: always
@@ -46,6 +48,7 @@ services:
       - mysql
     networks:
       - hospital-network
+
 
 networks:
   hospital-network:

@@ -1,54 +1,43 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const Thuoc = require('./Thuoc');
-
-const ThongTinDuocLy = sequelize.define('ThongTinDuocLy', {
-    maTTDL: {
-        type: DataTypes.STRING(100),
+module.exports = (sequelize, DataTypes) => {
+  const ThongTinDuocLy = sequelize.define("ThongTinDuocLy", {
+      maTTDL: {
+        type: DataTypes.STRING,
         primaryKey: true,
-    },
-    maThuoc: {
-        type: DataTypes.STRING(100),
+      },
+      maThuoc: {
+        type: DataTypes.STRING,
         allowNull: false,
-        references: {
-            model: Thuoc,
-            key: 'maThuoc',
-        },
-    },
-    tacDungChinh: {
-        type: DataTypes.TEXT,
+      },
+      tacDungChinh: {
+        type: DataTypes.STRING,
         allowNull: false,
-    },
-    chiDinh: {
-        type: DataTypes.TEXT,
-    },
-    chongChiDinh: {
-        type: DataTypes.TEXT,
-    },
-    tacDungPhu: {
-        type: DataTypes.TEXT,
-    },
-    tuongTacThuoc: {
-        type: DataTypes.TEXT,
-    },
-    canhBao: {
-        type: DataTypes.TEXT,
-    },
-    doiTuongSuDung: {
-        type: DataTypes.TEXT,
-    },
-    cachDung: {
-        type: DataTypes.TEXT,
-    },
-    baoQuan: {
-        type: DataTypes.TEXT,
-    },
-}, {
-    tableName: 'ThongTinDuocLy',
-    timestamps: false,
-});
+      },
+      chiDinh: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      chongChiDinh: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      lieuDung: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      cachDung: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+    }, {
+      tableName: "ThongTinDuocLy",
+      timestamps: false,
+    }
+  );
 
-ThongTinDuocLy.belongsTo(Thuoc, { foreignKey: 'maThuoc' });
-Thuoc.hasOne(ThongTinDuocLy, { foreignKey: 'maThuoc' });
 
-module.exports = ThongTinDuocLy;
+  ThongTinDuocLy.associate = (models) => {
+    ThongTinDuocLy.belongsTo(models.Thuoc, {foreignKey: "maThuoc",as: "Thuoc",});
+  };
+
+  return ThongTinDuocLy;
+};

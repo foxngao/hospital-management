@@ -1,22 +1,16 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-
-const NhomQuyen = sequelize.define('NhomQuyen', {
+module.exports = (sequelize, DataTypes) => {
+  const NhomQuyen = sequelize.define("NhomQuyen", {
     maNhom: {
-        type: DataTypes.STRING(100),
-        primaryKey: true,
+      type: DataTypes.STRING,
+      primaryKey: true,
     },
-    tenNhom: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
-        unique: true,
-    },
-    moTa: {
-        type: DataTypes.STRING(255),
-    },
-}, {
-    tableName: 'NhomQuyen',
-    timestamps: false,
-});
+    tenNhom: DataTypes.STRING,
+    moTa: DataTypes.TEXT,
+  }, { tableName: "NhomQuyen", timestamps: false });
 
-module.exports = NhomQuyen;
+  NhomQuyen.associate = (models) => {
+    NhomQuyen.hasMany(models.TaiKhoan, { foreignKey: "maNhom" });
+  };
+
+  return NhomQuyen;
+};
