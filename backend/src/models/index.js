@@ -1,32 +1,24 @@
-const Sequelize = require("sequelize");
-const sequelize = require("../config/sequelize");
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const sequelize = require('../config/sequelize');
 
 const db = {};
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
 
-const fs = require("fs");
-const path = require("path");
-
-// Load toàn bộ model *.js (trừ index.js)
 fs.readdirSync(__dirname)
-  .filter(
-    (file) =>
-      file.endsWith(".js") &&
-      file !== "index.js" &&
-      !file.startsWith(".")
-  )
-  .forEach((file) => {
-    const defineModel = require(path.join(__dirname, file));
-    const model = defineModel(sequelize, Sequelize.DataTypes);
+  .filter(file => file !== 'index.js' && file.endsWith('.js'))
+  .forEach(file => {
+    const model = require(path.join(__dirname, file));
     db[model.name] = model;
   });
 
-// Gọi associate nếu có
-Object.keys(db).forEach((modelName) => {
+Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
 module.exports = db;

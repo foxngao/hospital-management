@@ -8,7 +8,7 @@ const { validationResult } = require("express-validator");
  * Đăng ký tài khoản mới
  * Tự động gán vào bảng BenhNhan nếu maNhom là 'BENHNHAN'
  * Tự động gán vào bảng BacSi nếu maNhom là 'BACSI'
- * Tự động gán vào bảng NhanVien nếu maNhom là 'STAFF'
+ * Tự động gán vào bảng NhanVien nếu maNhom là 'NHANSU'
  * Tự động gán vào bảng NhomQuyen nếu maNhom là 'ADMIN'
  */
 exports.register = async (req, res) => {

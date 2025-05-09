@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 4000, // hoặc 4000 nếu bạn muốn đổi
+    port: 5173, // hoặc 4000 nếu bạn muốn đổi
     proxy: {
       '/api': {
         target: 'http://localhost:4000', // URL backend
