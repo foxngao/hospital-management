@@ -42,7 +42,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
 
     const hashed = await bcrypt.hash(matKhau, 10);
-    const maTK = uuidv4();
+    const maTK = uuidv4().slice(0, 8).toUpperCase(); // VD: "3FD28A9C"
 
     const newTK = await TaiKhoan.create({
       maTK,

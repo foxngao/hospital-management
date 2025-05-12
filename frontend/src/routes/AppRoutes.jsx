@@ -11,14 +11,36 @@ import PatientHome from "../pages/PatientHome";
 import DoctorLayout from "../layouts/DoctorLayout";
 import PatientLayout from "../layouts/PatientLayout";
 
-import AssistantList from "../modules/assistant/AssistantList"; //  import danh sách trợ lý
 
 import PrivateRoute from "../auth/PrivateRoute"; //  import route bảo vệ
+//--------------------------------------------------------------------------------
 import CreateUserForm from "../pages/admin/CreateUserForm";//  import form tạo tài khoản người dùng
 import AdminUserList from "../pages/admin/AdminUserList";//  import danh sách người dùng
 import AssignRole from "../pages/admin/AssignRole";//  import phân quyền người dùng
 import ManageKhoa from "../pages/admin/ManageKhoa";//  import quản lý khoa
 import ManageBacSi from "../pages/admin/ManageBacSi";//  import quản lý bác sĩ
+import ManageNhanSu from "../pages/admin/ManageNhanSu";//  import quản lý nhân sự
+import ManageBenhNhan from "../pages/admin/ManageBenhNhan";//  import quản lý bệnh nhân
+import ManageLichKham from "../pages/admin/ManageLichKham";//  import quản lý lịch khám
+import ManageXetNghiem from "../pages/admin/ManageXetNghiem";//  import quản lý xét nghiệm
+import ManageLoaiXN from "../pages/admin/ManageLoaiXN";//  import quản lý loại xét nghiệm
+//--------------------------------------------------------------------------------
+import ManageHoSoBenhAn from "../pages/admin/ManageHoSoBenhAn";//  import quản lý hồ sơ bệnh án
+import QuanLyThuocPage from "../pages/admin/thuoc/QuanLyThuocPage";//  import quản lý thuốc
+import QuanLyNhomThuoc from "../pages/admin/thuoc/QuanLyNhomThuoc";//  import quản lý nhóm thuốc
+import QuanLyDonViTinh from "../pages/admin/thuoc/QuanLyDonViTinh";//  import quản lý đơn vị tính thuốc
+import QuanLyHoaDonPage from "../pages/admin/hoadon/QuanLyHoaDonPage";//  import quản lý hóa đơn
+import TroLyBacSiPage from "../pages/admin/nhansu/TroLyBacSiPage";  //  import quản lý trợ lý bác sĩ
+import QuanLyYeuCauXNPage from "../pages/bacsi/xetnghiem/QuanLyYeuCauXNPage";//  import quản lý yêu cầu xét nghiệm
+import PhieuXetNghiemPage from "../pages/bacsi/xetnghiem/PhieuXetNghiemPage";//  import quản lý phiếu xét nghiệm
+import LichLamViecPage from "../pages/bacsi/lich/LichLamViecPage";  //  import quản lý lịch làm việc bác sĩ
+import QuanLyCaTrucPage from "../pages/admin/nhansu/QuanLyCaTrucPage";//  import quản lý ca trực bác sĩ
+import PhieuKhamPage from "../pages/bacsi/kham/PhieuKhamPage";//  import quản lý phiếu khám bệnh
+import KeDonThuocPage from "../pages/bacsi/kham/KeDonThuocPage";//  import quản lý kê đơn thuốc
+import LichHenKhamPage from "../pages/benhnhan/lich/LichHenKhamPage";//  import quản lý lịch hẹn khám bệnh
+import LichHenKhamPage_BS from "../pages/bacsi/lichhen/LichHenKhamPage_BS";//  import quản lý lịch hẹn khám bệnh
+
+
 
 
 
@@ -40,23 +62,46 @@ function AppRoutes() {
           <Route path="taikhoan/phan-quyen" element={<AssignRole />} />
           <Route path="khoa" element={<ManageKhoa />} />
           <Route path="bacsi" element={<ManageBacSi />} />
-          
-          <Route path="assistants" element={<AssistantList />} />
+          <Route path="nhansu" element={<ManageNhanSu />} />
+          <Route path="benhnhan" element={<ManageBenhNhan />} />
+          <Route path="lichkham" element={<ManageLichKham />} />
+          <Route path="xetnghiem" element={<ManageXetNghiem />} />
+          <Route path="loaixetnghiem" element={<ManageLoaiXN />} />
+          <Route path="hosobenhan" element={<ManageHoSoBenhAn />} />
+          <Route path="thuoc" element={<QuanLyThuocPage />} />
+           <Route path="nhomthuoc" element={<QuanLyNhomThuoc />} />
+          <Route path="donvitinh" element={<QuanLyDonViTinh />} />
+          <Route path="hoadon" element={<QuanLyHoaDonPage />} />
+          <Route path="nhansu/troly" element={<TroLyBacSiPage />} />
+          <Route path="nhansu/catruc" element={<QuanLyCaTrucPage />} />
+
+          {/* Thêm các route khác nếu cần */}         
         </Route>
+      </Route>
+
+      <Route path="/doctor" element={<PrivateRoute />}>
+          <Route element={<DoctorLayout />}>
+            <Route index element={<DoctorHome />} />
+            <Route path="xetnghiem" element={<QuanLyYeuCauXNPage />} />   
+            <Route path="xetnghiem/phieu" element={<PhieuXetNghiemPage />} />
+            <Route path="lich" element={<LichLamViecPage />} />
+            <Route path="kham" element={<PhieuKhamPage />} />
+            <Route path="kham/donthuoc" element={<KeDonThuocPage />} />
+            <Route path="lichhen" element={<LichHenKhamPage_BS />} />
+          </Route>
       </Route>
 
       {/* Các route layout khác  */}
-      <Route path="/doctor" element={<PrivateRoute />}>
-        <Route element={<DoctorLayout />}>
-          <Route index element={<DoctorHome />} />
+    
+
+      <Route path="/patient" element={<PrivateRoute />}>
+        <Route element={<PatientLayout />}>
+          <Route index element={<PatientHome />} />
+          <Route path="lich" element={<LichHenKhamPage />} />
+          {/* Các route khác của bệnh nhân */}
         </Route>
       </Route>
 
-      <Route path="/patient/*" element={<PatientLayout />}>
-           <Route element={<PatientLayout />}>
-          <Route index element={<PatientHome />} />
-        </Route>
-      </Route>
 
 
       {/* Điều hướng mặc định và 404 */}

@@ -5,35 +5,24 @@ const router = express.Router();
 router.use("/auth", require("../modules/auth"));
 
 //  Quản lý người dùng*******
-router.use("/nguoi-dung", require("../modules/user"));
+
 
 //  Đặt lịch hẹn khám
-router.use("/lich-hen", require("../modules/appointment"));
+router.use("/lichkham", require("../modules/lichkham"));
 
 //  Quản lý thuốc, dược
-router.use("/nha-thuoc", require("../modules/pharmacy"));
-router.use("/duoc-ly", require("../modules/medicalInfo"));
-router.use("/nhom-thuoc", require("../modules/medicineType"));
+router.use("/thuoc", require("../modules/thuoc"));
 
-//  Khoa, phòng********
-router.use("/khoa-phong", require("../modules/department"));
-
-//  Xét nghiệm
-router.use("/xet-nghiem", require("../modules/LabTest"));
 
 //  Hồ sơ bệnh án
-router.use("/ho-so", require("../modules/medicalRecord"));
+router.use("/hsba", require("../modules/hsba"));
 
-//  Hóa đơn, thanh toán
-router.use("/hoa-don", require("../modules/billing"));
 
 //  Phản hồi - Tin tức - Thông báo
-router.use("/phan-hoi", require("../modules/feedback"));
-router.use("/tin-tuc", require("../modules/news"));
-router.use("/thong-bao", require("../modules/Notification"));
+
 //-----------------------------------------------------------------------------
 //  Trợ lý bác sĩ
-router.use("/tro-ly", require("../modules/assistant"));
+router.use("/tro-ly", require("../modules/troly"));
 
 //  Quản lý tài khoản
 router.use("/tai-khoan", require("../modules/account"));
@@ -41,6 +30,19 @@ router.use("/tai-khoan", require("../modules/account"));
 router.use("/khoa", require("../modules/khoa"));
 //  Quản lý bác sĩ
 router.use("/bacsi", require("../modules/bacsi"));
-
+//  Quản lý nhân viên y tế
+router.use("/nhansu", require("../modules/nhansu"));
+//  Quản lý bệnh nhân
+router.use("/benhnhan", require("../modules/benhnhan"));
+router.use("/xetnghiem", require("../modules/xetnghiem"));//  Quản lý xét nghiệm
+router.use("/loaixetnghiem", require("../modules/loaixetnghiem"));//  Quản lý loại xét nghiệm
+router.use("/yeucauxetnghiem", require("../modules/yeucauxetnghiem"));//  Quản lý yêu cầu xét nghiệm
+router.use("/phieuxetnghiem", require("../modules/phieuxetnghiem"));//  Quản lý phiếu xét nghiệm
+router.use("/hoadon", require("../modules/hoadon"));//  Quản lý hóa đơn
+router.use("/lichlamviec", require("../modules/lichlamviec"));//  Quản lý lịch làm việc
+router.use("/catruc", require("../modules/catruc"));//  Quản lý ca trực
+//------------------------------------------------------------------------------
+router.use("/phieukham", require("../modules/phieukham"));//  Quản lý phiếu khám
+router.use("/donthuoc", require("../modules/donthuoc"));//  Quản lý đơn thuốc
 
 module.exports = router;

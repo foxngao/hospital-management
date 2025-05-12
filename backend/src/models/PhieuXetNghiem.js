@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
-const PhieuXetNghiem = sequelize.define('PhieuXetNghiem', {
+const PhieuXetNghiem = sequelize.define("PhieuXetNghiem", {
   maPhieuXN: {
     type: DataTypes.STRING(100),
     primaryKey: true
@@ -26,19 +26,19 @@ const PhieuXetNghiem = sequelize.define('PhieuXetNghiem', {
   ketQua: {
     type: DataTypes.TEXT
   },
-  hinhAnh: {
-    type: DataTypes.STRING(255)
-  }
+  ghiChu: {
+    type: DataTypes.TEXT
+  },
 }, {
-  tableName: 'PhieuXetNghiem',
+  tableName: "PhieuXetNghiem",
   timestamps: false
 });
 
 PhieuXetNghiem.associate = (models) => {
-  PhieuXetNghiem.belongsTo(models.YeuCauXetNghiem, { foreignKey: 'maYeuCau' });
-  PhieuXetNghiem.belongsTo(models.XetNghiem, { foreignKey: 'maXN' });
-  PhieuXetNghiem.belongsTo(models.NhanSuYTe, { foreignKey: 'maNS' });
-  PhieuXetNghiem.belongsTo(models.HoSoBenhAn, { foreignKey: 'maHSBA' });
+  PhieuXetNghiem.belongsTo(models.YeuCauXetNghiem, { foreignKey: "maYeuCau" });
+  PhieuXetNghiem.belongsTo(models.XetNghiem, { foreignKey: "maXN" });
+  PhieuXetNghiem.belongsTo(models.NhanSuYTe, { foreignKey: "maNS" });
+  PhieuXetNghiem.belongsTo(models.HoSoBenhAn, { foreignKey: "maHSBA" });
 };
 
 module.exports = PhieuXetNghiem;

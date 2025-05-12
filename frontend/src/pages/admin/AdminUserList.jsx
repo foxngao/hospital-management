@@ -7,20 +7,30 @@ import toast from "react-hot-toast";
 function AdminUserList() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1, limit = 10) => {
+    setLoading(true);
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/tai-khoan`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { page, limit }, // Gửi tham số phân trang
       });
       setUsers(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (err) {
-      toast.error("Không thể tải danh sách tài khoản");
+      console.error("Error fetching users:", err); // Log lỗi chi tiết
+      toast.error(err.response?.data?.message || "Không thể tải danh sách tài khoản");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!token) {
+      toast.error("Bạn chưa đăng nhập");
+      return;
+    }
     fetchUsers();
   }, []);
 
@@ -33,7 +43,8 @@ function AdminUserList() {
       toast.success("Đã xóa tài khoản");
       fetchUsers();
     } catch (err) {
-      toast.error("Lỗi khi xóa tài khoản");
+      console.error("Error deleting user:", err); // Log lỗi chi tiết
+      toast.error(err.response?.data?.message || "Lỗi khi xóa tài khoản");
     }
   };
 
@@ -165,10 +176,18 @@ function AdminUserList() {
         className="border p-2 w-full mb-6 rounded"
       />
 
-      {renderSection("🟦 Quản trị viên (ADMIN)", "ADMIN", grouped.ADMIN)}
-      {renderSection("🟩 Bác sĩ (BACSI)", "BACSI", grouped.BACSI)}
-      {renderSection("🟨 Nhân viên y tế (NHANSU)", "NHANSU", grouped.NHANSU)}
-      {renderSection("🟧 Bệnh nhân (BENHNHAN)", "BENHNHAN", grouped.BENHNHAN)}
+      {loading ? (
+        <p>Đang tải...</p>
+      ) : filtered.length === 0 ? (
+        <p>Không có tài khoản nào</p>
+      ) : (
+        <>
+          {renderSection("🟦 Quản trị viên (ADMIN)", "ADMIN", grouped.ADMIN)}
+          {renderSection("🟩 Bác sĩ (BACSI)", "BACSI", grouped.BACSI)}
+          {renderSection("🟨 Nhân viên y tế (NHANSU)", "NHANSU", grouped.NHANSU)}
+          {renderSection("🟧 Bệnh nhân (BENHNHAN)", "BENHNHAN", grouped.BENHNHAN)}
+        </>
+      )}
     </div>
   );
 }

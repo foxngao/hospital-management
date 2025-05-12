@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: "/api", // 🔥 Kích hoạt proxy trong vite.config.js
 });
 
 axiosClient.interceptors.request.use((config) => {
