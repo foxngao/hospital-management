@@ -20,16 +20,20 @@ const TroLyBacSiPage = () => {
   }, []);
 
   const fetchList = async () => {
-    try {
-      const res = await getTroLyList();
-      const raw = res.data?.data || res.data;
-      const safeList = Array.isArray(raw) ? raw : [];
-      setList(safeList);
-    } catch (err) {
-      console.error("❌ Lỗi khi tải danh sách trợ lý:", err);
-      alert("Lỗi tải danh sách trợ lý");
-    }
-  };
+  try {
+    const res = await getTroLyList();
+
+    // ✅ Đọc chính xác từ data.items
+    const raw = res.data?.data?.items || [];
+
+    // ✅ Gán nếu là mảng, nếu không thì gán mảng rỗng
+    setList(Array.isArray(raw) ? raw : []);
+  } catch (err) {
+    console.error("❌ Lỗi khi tải danh sách trợ lý:", err);
+    alert("Lỗi tải danh sách trợ lý");
+  }
+};
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

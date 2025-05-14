@@ -19,7 +19,7 @@ exports.getAll = async (req, res) => {
     res.status(200).json({
       message: "Lấy danh sách trợ lý thành công",
       data: {
-        rows: danhSach.rows,
+        items: danhSach.rows,
         total: danhSach.count,
         currentPage: parseInt(page),
         totalPages: Math.ceil(danhSach.count / limit),

@@ -39,6 +39,10 @@ import PhieuKhamPage from "../pages/bacsi/kham/PhieuKhamPage";//  import quản 
 import KeDonThuocPage from "../pages/bacsi/kham/KeDonThuocPage";//  import quản lý kê đơn thuốc
 import LichHenKhamPage from "../pages/benhnhan/lich/LichHenKhamPage";//  import quản lý lịch hẹn khám bệnh
 import LichHenKhamPage_BS from "../pages/bacsi/lichhen/LichHenKhamPage_BS";//  import quản lý lịch hẹn khám bệnh
+import KetQuaXetNghiemPage from "../pages/benhnhan/xetnghiem/KetQuaXetNghiemPage";//  import quản lý kết quả xét nghiệm
+import HoSoBenhAnPage from "../pages/benhnhan/hoso/HoSoBenhAnPage";//  import quản lý hồ sơ bệnh án
+import GioHangThanhToanPage from "../pages/benhnhan/hoadon/GioHangThanhToanPage";//  import quản lý giỏ hàng thanh toán
+import TaiKhoanCaNhanPage from "../pages/benhnhan/taikhoan/TaiKhoanCaNhanPage";//  import quản lý tài khoản cá nhân bệnh nhân
 
 
 
@@ -98,6 +102,12 @@ function AppRoutes() {
         <Route element={<PatientLayout />}>
           <Route index element={<PatientHome />} />
           <Route path="lich" element={<LichHenKhamPage />} />
+          <Route path="xetnghiem" element={<KetQuaXetNghiemPage />} />
+          <Route path="/patient/hoso" element={<HoSoBenhAnPage />} />
+          <Route path="hoadon" element={<GioHangThanhToanPage />} />
+          <Route path="/patient/taikhoan" element={<TaiKhoanCaNhanPage />} />
+
+
           {/* Các route khác của bệnh nhân */}
         </Route>
       </Route>

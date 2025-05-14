@@ -2,7 +2,8 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("./controller");
-
+const checkRole = require("../../middleware/checkRole");
+const verifyToken = require("../../middleware/auth");
 // ---------------- HOÁ ĐƠN ----------------
 router.get("/", controller.getAllHoaDon);// lấy tất cả hoá đơn
 router.post("/", controller.createHoaDon);// tạo hoá đơn mới
@@ -22,3 +23,10 @@ router.get("/giohang/:maBN", controller.getGioHang);// lấy giỏ hàng theo m�
 router.post("/giohang", controller.addToGioHang);// thêm sản phẩm vào giỏ hàng
 
 module.exports = router;
+
+// ---------------- BỆNH NHÂN ----------------
+router.post("/giohang/confirm", controller.confirmGioHang); // bệnh nhân xác nhận giỏ hàng → hóa đơn
+router.get("/myhoadon/:maBN", controller.getHoaDonByBenhNhan); // bệnh nhân xem danh sách hóa đơn
+router.get("/thanhtoan/:maHD", controller.getThanhToanByHoaDon); // xem thanh toán theo mã hoá đơn
+// ---------------- CHI TIẾT GIỎ HÀNG ----------------
+router.delete("/giohang/item/:id", controller.deleteChiTietGioHang);

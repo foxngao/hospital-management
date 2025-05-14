@@ -111,3 +111,79 @@ exports.updateTrangThai = async (req, res) => {
     res.status(500).json({ message: "Lỗi cập nhật trạng thái", error: err.message });
   }
 };
+
+// ---------------- BỆNH NHÂN XÁC NHẬN GIỎ HÀNG → TẠO HOÁ ĐƠN ----------------
+exports.confirmGioHang = async (req, res) => {
+  try {
+    const { maBN, maNS } = req.body;
+    const gioHang = await GioHang.findOne({ where: { maBN } });
+    if (!gioHang) return res.status(404).json({ message: "Không có giỏ hàng" });
+
+    const chiTiet = await ChiTietGioHang.findAll({ where: { maGH: gioHang.maGH } });
+    if (chiTiet.length === 0) return res.status(400).json({ message: "Giỏ hàng trống" });
+
+    const maHD = uuidv4().slice(0, 8).toUpperCase();
+    const tongTien = chiTiet.reduce((sum, item) => sum + parseFloat(item.thanhTien || 0), 0);
+
+    const hoaDon = await HoaDon.create({
+      maHD, maBN, maNS, tongTien, trangThai: "CHUA_THANH_TOAN"
+    });
+
+    await Promise.all(chiTiet.map(item => ChiTietHoaDon.create({
+      maCTHD: uuidv4().slice(0, 8).toUpperCase(),
+      maHD,
+      loaiDichVu: item.loaiDichVu,
+      maDichVu: item.maDichVu,
+      donGia: item.donGia,
+      soLuong: item.soLuong,
+      thanhTien: item.thanhTien
+    })));
+
+    await ChiTietGioHang.destroy({ where: { maGH: gioHang.maGH } });
+    await GioHang.destroy({ where: { maGH: gioHang.maGH } });
+
+    res.status(201).json({ message: "Xác nhận giỏ hàng thành công, đã tạo hoá đơn", data: hoaDon });
+  } catch (err) {
+    console.error("❌ Lỗi Sequelize:", err);
+    res.status(500).json({ message: "Lỗi xác nhận giỏ hàng", error: err.message });
+  }
+};
+
+// ---------------- BỆNH NHÂN XEM DANH SÁCH HOÁ ĐƠN CỦA MÌNH ----------------
+exports.getHoaDonByBenhNhan = async (req, res) => {
+  try {
+    const { maBN } = req.params;
+    const data = await HoaDon.findAll({ where: { maBN }, order: [["ngayLap", "DESC"]] });
+    res.json({ message: "Danh sách hóa đơn bệnh nhân", data });
+  } catch (err) {
+    console.error("❌ Lỗi Sequelize:", err);
+    res.status(500).json({ message: "Lỗi truy xuất hóa đơn", error: err.message });
+  }
+};
+
+// ---------------- BỆNH NHÂN XEM CHI TIẾT THANH TOÁN ----------------
+exports.getThanhToanByHoaDon = async (req, res) => {
+  try {
+    const { maHD } = req.params;
+    const data = await ThanhToan.findAll({ where: { maHD } });
+    res.json({ message: "Chi tiết thanh toán hóa đơn", data });
+  } catch (err) {
+    console.error("❌ Lỗi Sequelize:", err);
+    res.status(500).json({ message: "Lỗi truy xuất thanh toán", error: err.message });
+  }
+};
+
+// ---------------- XOÁ 1 DÒNG GIỎ HÀNG ----------------
+exports.deleteChiTietGioHang = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await ChiTietGioHang.destroy({ where: { maCTGH: id } });
+
+    if (!deleted) return res.status(404).json({ message: "Không tìm thấy chi tiết để xoá" });
+
+    res.json({ message: "Xoá dòng giỏ hàng thành công" });
+  } catch (err) {
+    console.error("❌ Lỗi Sequelize:", err);
+    res.status(500).json({ message: "Lỗi xoá dòng giỏ hàng", error: err.message });
+  }
+};

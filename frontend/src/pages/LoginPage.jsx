@@ -8,42 +8,44 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, form);
+  e.preventDefault();
+  try {
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, form);
 
-      // Kiểm tra phản hồi hợp lệ
-      if (res.data && res.data.token && res.data.user) {
-        const { token, user } = res.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+    // Kiểm tra phản hồi hợp lệ
+    if (res.data && res.data.token && res.data.user) {
+      const { token, user } = res.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("maTK", user.maTK); // ✅ Thêm dòng này để các API biết mã đăng nhập
 
-        toast.success("Đăng nhập thành công!");
+      toast.success("Đăng nhập thành công!");
 
-        // Điều hướng theo quyền
-        switch (user.maNhom) {
-          case "ADMIN":
-            navigate("/admin");
-            break;
-          case "BACSI":
-            navigate("/doctor");
-            break;
-          case "BENHNHAN":
-            navigate("/patient");
-            break;
-          case "NHANSU":
-            navigate("/nhansu");
-            break;
-          default:
-            navigate("/404");
-        }
-      } else {
-        toast.error("Sai tài khoản hoặc mật khẩu!");
+      // Điều hướng theo quyền
+      switch (user.maNhom) {
+        case "ADMIN":
+          navigate("/admin");
+          break;
+        case "BACSI":
+          navigate("/doctor");
+          break;
+        case "BENHNHAN":
+          navigate("/patient");
+          break;
+        case "NHANSU":
+          navigate("/nhansu");
+          break;
+        default:
+          navigate("/404");
       }
-    } catch (err) {
+    } else {
       toast.error("Sai tài khoản hoặc mật khẩu!");
     }
-  };
+  } catch (err) {
+    toast.error("Sai tài khoản hoặc mật khẩu!");
+  }
+};
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50">
       <div className="bg-white shadow-md p-8 rounded-lg w-full max-w-md">

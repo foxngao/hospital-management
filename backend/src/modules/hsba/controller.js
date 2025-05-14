@@ -46,3 +46,21 @@ exports.remove = async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi xoá hồ sơ", error: err.message });
   }
 };
+
+exports.getByBenhNhan = async (req, res) => {
+  try {
+    const maBN = req.params.maBN || req.user?.maBN;
+    if (!maBN) return res.status(400).json({ message: "Thiếu mã bệnh nhân" });
+
+    const data = await HoSo.findAll({
+      where: { maBN },
+      include: [BenhNhan],
+      order: [["ngayLap", "DESC"]],
+    });
+
+    res.json({ message: "Lấy hồ sơ bệnh án theo bệnh nhân", data });
+  } catch (err) {
+    console.error("❌ Lỗi Sequelize:", err);
+    res.status(500).json({ message: "Lỗi truy xuất hồ sơ", error: err.message });
+  }
+};

@@ -63,6 +63,7 @@ function AdminUserList() {
 
   const commonColumns = (
     <>
+      <th className="p-2">Mã tài khoản</th>
       <th className="p-2">Tên đăng nhập</th>
       <th className="p-2">Email</th>
       <th className="p-2">Trạng thái</th>
@@ -107,6 +108,7 @@ function AdminUserList() {
         <tbody>
           {data.map((user) => (
             <tr key={user.maTK || user.tenDangNhap} className="border-b">
+              <td className="p-2">{user.maTK}</td>
               <td className="p-2">{user.tenDangNhap}</td>
               <td className="p-2">{user.email}</td>
               <td className="p-2">{user.trangThai === 1 ? "Hoạt động" : "Đã khóa"}</td>
