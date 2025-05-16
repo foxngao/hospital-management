@@ -8,43 +8,49 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, form);
+    e.preventDefault();
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, form);
 
-    // Kiểm tra phản hồi hợp lệ
-    if (res.data && res.data.token && res.data.user) {
-      const { token, user } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("maTK", user.maTK); // ✅ Thêm dòng này để các API biết mã đăng nhập
+      if (res.data && res.data.token && res.data.user) {
+        const { token, user } = res.data;
 
-      toast.success("Đăng nhập thành công!");
+        // Lưu token và thông tin tài khoản
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("maTK", user.maTK);
+        localStorage.setItem("role", user.maNhom);
+        localStorage.setItem("loaiNS", user.loaiNS || "");
 
-      // Điều hướng theo quyền
-      switch (user.maNhom) {
-        case "ADMIN":
-          navigate("/admin");
-          break;
-        case "BACSI":
-          navigate("/doctor");
-          break;
-        case "BENHNHAN":
-          navigate("/patient");
-          break;
-        case "NHANSU":
-          navigate("/nhansu");
-          break;
-        default:
-          navigate("/404");
+        toast.success("Đăng nhập thành công!");
+
+        // ✅ Điều hướng chính xác theo vai trò
+        switch (user.maNhom) {
+          case "ADMIN":
+            navigate("/admin");
+            break;
+          case "BACSI":
+            navigate("/doctor");
+            break;
+          case "BENHNHAN":
+            navigate("/patient");
+            break;
+          case "NHANSU":
+            if (user.loaiNS === "YT") navigate("/yta");
+            else if (user.loaiNS === "XN") navigate("/xetnghiem");
+            else if (user.loaiNS === "TN") navigate("/tiepnhan");
+            else navigate("/nhansu");
+            break;
+          default:
+            navigate("/404");
+        }
+      } else {
+        toast.error("Sai tài khoản hoặc mật khẩu!");
       }
-    } else {
+    } catch (err) {
       toast.error("Sai tài khoản hoặc mật khẩu!");
     }
-  } catch (err) {
-    toast.error("Sai tài khoản hoặc mật khẩu!");
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50">

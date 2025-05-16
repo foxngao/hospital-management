@@ -1,13 +1,14 @@
-// 📁 src/pages/admin/CreateUserForm.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 function CreateUserForm({ onSuccess }) {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
+  const location = useLocation();
+  const userFromState = location.state?.user;
 
   const [dsKhoa, setDsKhoa] = useState([]);
   const [form, setForm] = useState({
@@ -45,31 +46,52 @@ function CreateUserForm({ onSuccess }) {
   useEffect(() => {
     fetchKhoa();
     if (isEdit) {
-      axios
-        .get(`${import.meta.env.VITE_API_URL}/api/tai-khoan/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => {
-          setForm({
-            tenDangNhap: res.data.tenDangNhap,
-            matKhau: "",
-            email: res.data.email,
-            vaiTro: res.data.maNhom,
-            maKhoa: res.data.maKhoa || "",
-            loaiNS: res.data.loaiNS || "",
-            capBac: res.data.capBac || "",
-            chuyenMon: res.data.chuyenMon || "",
-            hoTen: res.data.hoTen || "",
-            trinhDo: res.data.trinhDo || "",
-            chucVu: res.data.chucVu || "",
-            ngaySinh: res.data.ngaySinh || "",
-            gioiTinh: res.data.gioiTinh || "",
-            diaChi: res.data.diaChi || "",
-            soDienThoai: res.data.soDienThoai || "",
-            bhyt: res.data.bhyt || ""
-          });
-        })
-        .catch(() => toast.error("Không tải được thông tin tài khoản"));
+      if (userFromState) {
+        setForm({
+          tenDangNhap: userFromState.tenDangNhap,
+          matKhau: "",
+          email: userFromState.email,
+          vaiTro: userFromState.maNhom,
+          maKhoa: userFromState.maKhoa || "",
+          loaiNS: userFromState.loaiNS || "",
+          capBac: userFromState.capBac || "",
+          chuyenMon: userFromState.chuyenMon || "",
+          hoTen: userFromState.hoTen || "",
+          trinhDo: userFromState.trinhDo || "",
+          chucVu: userFromState.chucVu || "",
+          ngaySinh: userFromState.ngaySinh || "",
+          gioiTinh: userFromState.gioiTinh || "",
+          diaChi: userFromState.diaChi || "",
+          soDienThoai: userFromState.soDienThoai || "",
+          bhyt: userFromState.bhyt || ""
+        });
+      } else {
+        axios
+          .get(`${import.meta.env.VITE_API_URL}/api/tai-khoan/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            setForm({
+              tenDangNhap: res.data.tenDangNhap,
+              matKhau: "",
+              email: res.data.email,
+              vaiTro: res.data.maNhom,
+              maKhoa: res.data.maKhoa || "",
+              loaiNS: res.data.loaiNS || "",
+              capBac: res.data.capBac || "",
+              chuyenMon: res.data.chuyenMon || "",
+              hoTen: res.data.hoTen || "",
+              trinhDo: res.data.trinhDo || "",
+              chucVu: res.data.chucVu || "",
+              ngaySinh: res.data.ngaySinh || "",
+              gioiTinh: res.data.gioiTinh || "",
+              diaChi: res.data.diaChi || "",
+              soDienThoai: res.data.soDienThoai || "",
+              bhyt: res.data.bhyt || ""
+            });
+          })
+          .catch(() => toast.error("Không tải được thông tin tài khoản"));
+      }
     }
   }, [id]);
 
@@ -141,9 +163,7 @@ function CreateUserForm({ onSuccess }) {
       <h2 className="text-xl font-bold mb-4">{isEdit ? "Cập nhật tài khoản" : "Tạo tài khoản"}</h2>
 
       <input type="text" name="tenDangNhap" value={form.tenDangNhap} onChange={handleChange} placeholder="Tên đăng nhập" className="border p-2 w-full rounded" required disabled={isEdit} />
-
       <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Email" className="border p-2 w-full rounded" required />
-
       {!isEdit && (
         <input type="password" name="matKhau" value={form.matKhau} onChange={handleChange} placeholder="Mật khẩu" className="border p-2 w-full rounded" required />
       )}
@@ -169,7 +189,12 @@ function CreateUserForm({ onSuccess }) {
       {form.vaiTro === "NHANSU" && (
         <>
           <input type="text" name="hoTen" value={form.hoTen} onChange={handleChange} placeholder="Họ tên" className="border p-2 w-full rounded" required />
-          <input type="text" name="loaiNS" value={form.loaiNS} onChange={handleChange} placeholder="Loại nhân sự" className="border p-2 w-full rounded" required />
+          <select name="loaiNS" value={form.loaiNS} onChange={handleChange} className="border p-2 w-full rounded" required>
+            <option value="">-- Chọn loại nhân sự --</option>
+            <option value="YT">Y tá</option>
+            <option value="XN">Nhân viên xét nghiệm</option>
+            <option value="TN">Nhân viên tiếp nhận</option>
+          </select>
           <input type="text" name="capBac" value={form.capBac} onChange={handleChange} placeholder="Cấp bậc" className="border p-2 w-full rounded" required />
           <input type="text" name="chuyenMon" value={form.chuyenMon} onChange={handleChange} placeholder="Chuyên môn" className="border p-2 w-full rounded" required />
         </>

@@ -7,9 +7,6 @@ const { validationResult } = require("express-validator");
 /**
  * Đăng ký tài khoản mới
  * Tự động gán vào bảng BenhNhan nếu maNhom là 'BENHNHAN'
- * Tự động gán vào bảng BacSi nếu maNhom là 'BACSI'
- * Tự động gán vào bảng NhanVien nếu maNhom là 'NHANSU'
- * Tự động gán vào bảng NhomQuyen nếu maNhom là 'ADMIN'
  */
 exports.register = async (req, res) => {
   const errors = validationResult(req);
@@ -24,7 +21,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
 
     const hashedPassword = await bcrypt.hash(matKhau, 10);
-    const maTK = uuidv4().slice(0, 8).toUpperCase(); // VD: "3FD28A9C"
+    const maTK = uuidv4().slice(0, 8).toUpperCase();
 
     const newUser = await TaiKhoan.create({
       maTK,
@@ -35,27 +32,25 @@ exports.register = async (req, res) => {
       trangThai: true,
     });
 
-    // Nếu là bệnh nhân thì tạo hồ sơ bênh nhân liên kết
-    if (maNhom === 'BENHNHAN') {
+    if (maNhom === "BENHNHAN") {
       await BenhNhan.create({
         maBN: maTK,
         hoTen: tenDangNhap,
         email,
-        maTK: maTK,
+        maTK,
       });
-
     }
 
     res.status(201).json({ message: "Đăng ký thành công", data: newUser });
   } catch (error) {
-    console.error(" Lỗi khi đăng ký:", error);  // thêm dòng này
+    console.error("❌ Lỗi khi đăng ký:", error);
     res.status(500).json({ message: "Lỗi khi đăng ký", error: error.message });
   }
 };
 
 /**
  * Đăng nhập hệ thống
- * Trả về token + thông tin người dùng
+ * Trả về token + thông tin người dùng (bao gồm loaiNS nếu là NHANSU)
  */
 exports.login = async (req, res) => {
   const errors = validationResult(req);
@@ -85,6 +80,13 @@ exports.login = async (req, res) => {
 
     const nhomQuyen = await NhomQuyen.findOne({ where: { maNhom: user.maNhom } });
 
+    let loaiNS = null;
+    if (user.maNhom === "NHANSU") {
+      const { NhanSuYTe } = require("../../models");
+      const ns = await NhanSuYTe.findOne({ where: { maTK: user.maTK } });
+      loaiNS = ns?.loaiNS || null;
+    }
+
     res.status(200).json({
       token,
       message: "Đăng nhập thành công",
@@ -94,10 +96,11 @@ exports.login = async (req, res) => {
         email: user.email,
         maNhom: user.maNhom,
         tenNhom: nhomQuyen?.tenNhom || "Không xác định",
+        loaiNS,
       },
     });
   } catch (error) {
-    console.error(" Lỗi khi đăng ký:", error);
+    console.error("❌ Lỗi khi đăng nhập:", error);
     res.status(500).json({ message: "Lỗi khi đăng nhập", error: error.message });
   }
 };

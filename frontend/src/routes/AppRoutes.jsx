@@ -10,6 +10,13 @@ import DoctorHome from "../pages/DoctorHome";
 import PatientHome from "../pages/PatientHome";
 import DoctorLayout from "../layouts/DoctorLayout";
 import PatientLayout from "../layouts/PatientLayout";
+import YtaLayout from "../layouts/YtaLayout"; //  import layout cho điều dưỡng / y tá
+import XetNghiemLayout from "../layouts/XetNghiemLayout"; //  import layout cho nhân viên xét nghiệm
+import TiepNhanLayout from "../layouts/TiepNhanLayout"; //  import layout cho nhân viên tiếp nhận
+import YTaHome from "../pages/YTaHome"; //  import giao diện nhân viên y tá
+import TiepNhanHome from "../pages/TiepNhanHome"; //  import giao diện nhân viên tiếp nhận
+import XetNghiemHome from "../pages/XetNghiemHome"; //  import giao diện nhân viên xét nghiệm
+//--------------------------------------------------------------------------------
 
 
 import PrivateRoute from "../auth/PrivateRoute"; //  import route bảo vệ
@@ -31,6 +38,7 @@ import QuanLyNhomThuoc from "../pages/admin/thuoc/QuanLyNhomThuoc";//  import qu
 import QuanLyDonViTinh from "../pages/admin/thuoc/QuanLyDonViTinh";//  import quản lý đơn vị tính thuốc
 import QuanLyHoaDonPage from "../pages/admin/hoadon/QuanLyHoaDonPage";//  import quản lý hóa đơn
 import TroLyBacSiPage from "../pages/admin/nhansu/TroLyBacSiPage";  //  import quản lý trợ lý bác sĩ
+//--------------------------------------------------------------------------------
 import QuanLyYeuCauXNPage from "../pages/bacsi/xetnghiem/QuanLyYeuCauXNPage";//  import quản lý yêu cầu xét nghiệm
 import PhieuXetNghiemPage from "../pages/bacsi/xetnghiem/PhieuXetNghiemPage";//  import quản lý phiếu xét nghiệm
 import LichLamViecPage from "../pages/bacsi/lich/LichLamViecPage";  //  import quản lý lịch làm việc bác sĩ
@@ -39,11 +47,23 @@ import PhieuKhamPage from "../pages/bacsi/kham/PhieuKhamPage";//  import quản 
 import KeDonThuocPage from "../pages/bacsi/kham/KeDonThuocPage";//  import quản lý kê đơn thuốc
 import LichHenKhamPage from "../pages/benhnhan/lich/LichHenKhamPage";//  import quản lý lịch hẹn khám bệnh
 import LichHenKhamPage_BS from "../pages/bacsi/lichhen/LichHenKhamPage_BS";//  import quản lý lịch hẹn khám bệnh
+//--------------------------------------------------------------------------------
+
 import KetQuaXetNghiemPage from "../pages/benhnhan/xetnghiem/KetQuaXetNghiemPage";//  import quản lý kết quả xét nghiệm
 import HoSoBenhAnPage from "../pages/benhnhan/hoso/HoSoBenhAnPage";//  import quản lý hồ sơ bệnh án
 import GioHangThanhToanPage from "../pages/benhnhan/hoadon/GioHangThanhToanPage";//  import quản lý giỏ hàng thanh toán
 import TaiKhoanCaNhanPage from "../pages/benhnhan/taikhoan/TaiKhoanCaNhanPage";//  import quản lý tài khoản cá nhân bệnh nhân
+//--------------------------------------------------------------------------------
 
+import DangKyBenhNhanPage from "../pages/nhansu/YTa/DangKyBenhNhanPage";//  import quản lý đăng ký bệnh nhân
+import GhiNhanTinhTrangPage from "../pages/nhansu/YTa/GhiNhanTinhTrangPage";//  import quản lý ghi nhận tình trạng bệnh nhân
+import LichLamViecBacSiPage from "../pages/nhansu/YTa/LichLamViecBacSiPage";//  import quản lý lịch làm việc bác sĩ
+import YeuCauXNTruocPage from "../pages/nhansu/xetnghiem/YeuCauXNTruocPage";//  import quản lý yêu cầu xét nghiệm trước
+import PhieuXetNghiem_NSPage from "../pages/nhansu/xetnghiem/PhieuXetNghiem_NSPage";//  import quản lý phiếu xét nghiệm
+import DangKyKham_NSPage from "../pages/nhansu/tiepnhan/DangKyKham_NSPage";//  import quản lý đăng ký khám bệnh
+import LichHenPage from "../pages/nhansu/tiepnhan/LichHenPage";//  import quản lý lịch hẹn khám bệnh
+import TiepNhanHoSoPage from "../pages/nhansu/tiepnhan/TiepNhanHoSoPage";//  import quản lý hồ sơ bệnh án
+//--------------------------------------------------------------------------------
 
 
 
@@ -112,6 +132,42 @@ function AppRoutes() {
         </Route>
       </Route>
 
+      <Route path="/yta" element={<PrivateRoute />}>
+        <Route element={<YtaLayout />}>
+          <Route index element={<YTaHome />} />
+          <Route path="benhnhan/dangky" element={<DangKyBenhNhanPage />} />
+          <Route path="benhnhan/ghinhantinhtrang" element={<GhiNhanTinhTrangPage />} />
+          <Route path="lichlamviec" element={<LichLamViecBacSiPage />} />
+          
+
+        </Route>
+      </Route>
+
+
+
+      <Route path="/xetnghiem" element={<PrivateRoute />}>
+        <Route element={<XetNghiemLayout />}>
+          <Route index element={<XetNghiemHome />} />
+          <Route path="xetnghiem/yeucau" element={<YeuCauXNTruocPage />} />
+          <Route path="xetnghiem/phieu" element={<PhieuXetNghiem_NSPage />} />
+
+
+
+        </Route>
+      </Route>
+
+
+      <Route path="/tiepnhan" element={<PrivateRoute />}>
+        <Route element={<TiepNhanLayout />}>
+          <Route index element={<TiepNhanHome />} />
+          <Route path="lichkham" element={<DangKyKham_NSPage />} />
+          <Route path="lichHen" element={<LichHenPage />} />
+          <Route path="hsba" element={<TiepNhanHoSoPage />} />
+
+          {/* Các route khác của nhân viên tiếp nhận */}
+
+        </Route>
+      </Route>
 
 
       {/* Điều hướng mặc định và 404 */}

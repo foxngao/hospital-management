@@ -140,10 +140,12 @@ function AdminUserList() {
               <td className="p-2 space-x-2">
                 <Link
                   to={`/admin/taikhoan/sua/${user.maTK}`}
+                  state={{ user }}
                   className="text-yellow-600 hover:underline"
                 >
                   Sửa
                 </Link>
+
                 <button
                   onClick={() => handleDelete(user.maTK)}
                   className="text-red-600 hover:underline"
