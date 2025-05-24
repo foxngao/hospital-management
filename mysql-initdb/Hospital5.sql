@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS Thuoc (
     giaBanBuon DECIMAL(12,2),
     tonKhoToiThieu INT DEFAULT 0,
     tonKhoHienTai INT DEFAULT 0,
-    hanSuDung INT,
+    hanSuDung DATE,
     trangThai TINYINT(1) DEFAULT 1,
     FOREIGN KEY (maDVT) REFERENCES DonViTinh(maDVT),
     FOREIGN KEY (maNhom) REFERENCES NhomThuoc(maNhom)
@@ -170,9 +170,11 @@ CREATE TABLE IF NOT EXISTS TroLyBacSi (
 
 CREATE TABLE IF NOT EXISTS LichLamViec (
     maLichLV VARCHAR(100) PRIMARY KEY,
+    maBS VARCHAR(100) NOT NULL,
     maNS VARCHAR(100) NOT NULL,
     maCa VARCHAR(100) NOT NULL,
     ngayLamViec DATETIME NOT NULL,
+    FOREIGN KEY (maBS) REFERENCES BacSi(maBS),
     FOREIGN KEY (maNS) REFERENCES NhanSuYTe(maNS),
     FOREIGN KEY (maCa) REFERENCES CaKham(maCa)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -239,12 +241,13 @@ CREATE TABLE IF NOT EXISTS DonThuoc (
     maDT VARCHAR(100) PRIMARY KEY,
     maHSBA VARCHAR(100) NOT NULL,
     maBS VARCHAR(100) NOT NULL,
-    maThuoc VARCHAR(100) NOT NULL,
+    maThuoc VARCHAR(100), 
     ngayKeDon DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY (maHSBA) REFERENCES HoSoBenhAn(maHSBA),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
     FOREIGN KEY (maBS) REFERENCES BacSi(maBS)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 
 CREATE TABLE IF NOT EXISTS PhieuXetNghiem (
     maPhieuXN VARCHAR(100) PRIMARY KEY,
@@ -349,6 +352,16 @@ INSERT INTO NhomQuyen (maNhom, tenNhom, moTa) VALUES
 ('NHANSU', 'Nhân sự y tế', 'Quản lý nhân viên y tế'),
 ('BENHNHAN', 'Bệnh nhân', 'Đặt lịch hẹn và xem hồ sơ bệnh án');
 
+-- Bổ sung nhân sự hệ thống để đại diện khi bệnh nhân tạo hóa đơn
+INSERT INTO TaiKhoan (maTK, tenDangNhap, matKhau, maNhom)
+VALUES ('SYSNS001', 'system_nhansu', '123456', 'NHANSU')
+ON DUPLICATE KEY UPDATE tenDangNhap = tenDangNhap;
+
+INSERT INTO NhanSuYTe (maNS, maTK, hoTen, loaiNS)
+VALUES ('SYSTEM', 'SYSNS001', 'Tự động hệ thống', 'HT')
+ON DUPLICATE KEY UPDATE hoTen = hoTen;
+
+
 INSERT INTO KhoaPhong (maKhoa, tenKhoa, moTa) VALUES
 ('K001', 'Khoa Nội', 'Chuyên điều trị bệnh nội khoa'),
 ('K002', 'Khoa Ngoại', 'Chuyên phẫu thuật và điều trị ngoại khoa'),
@@ -370,9 +383,9 @@ INSERT INTO DonViTinh (maDVT, tenDVT, moTa) VALUES
 ('DVT003', 'Chai', 'Đơn vị tính theo chai');
 
 INSERT INTO Thuoc (maThuoc, tenThuoc, tenHoatChat, hamLuong, maDVT, maNhom, soDangKy, nuocSanXuat, hangSanXuat, giaNhap, giaBanLe, giaBanBuon, tonKhoToiThieu, tonKhoHienTai, hanSuDung, trangThai) VALUES
-('TH001', 'Paracetamol', 'Paracetamol', '500mg', 'DVT001', 'NH001', 'SDK001', 'Việt Nam', 'Dược phẩm Hà Nội', 10000, 12000, 11500, 10, 50, 24, 1),
-('TH002', 'Amoxicillin', 'Amoxicillin', '500mg', 'DVT001', 'NH002', 'SDK002', 'Việt Nam', 'Dược phẩm Sài Gòn', 15000, 18000, 17000, 5, 30, 36, 1),
-('TH003', 'Atorvastatin', 'Atorvastatin', '20mg', 'DVT001', 'NH003', 'SDK003', 'Thụy Sĩ', 'Pfizer', 25000, 30000, 28000, 5, 20, 48, 1);
+('TH001', 'Paracetamol', 'Paracetamol', '500mg', 'DVT001', 'NH001', 'SDK001', 'Việt Nam', 'Dược phẩm Hà Nội', 10000, 12000, 11500, 10, 50, '2025-12-31', 1),
+('TH002', 'Amoxicillin', 'Amoxicillin', '500mg', 'DVT001', 'NH002', 'SDK002', 'Việt Nam', 'Dược phẩm Sài Gòn', 15000, 18000, 17000, 5, 30, '2025-11-30', 1),
+('TH003', 'Atorvastatin', 'Atorvastatin', '20mg', 'DVT001', 'NH003', 'SDK003', 'Thụy Sĩ', 'Pfizer', 25000, 30000, 28000, 5, 20, '2025-10-15', 1);
 
 
 

@@ -31,13 +31,12 @@ import ManageBenhNhan from "../pages/admin/ManageBenhNhan";//  import quản lý
 import ManageLichKham from "../pages/admin/ManageLichKham";//  import quản lý lịch khám
 import ManageXetNghiem from "../pages/admin/ManageXetNghiem";//  import quản lý xét nghiệm
 import ManageLoaiXN from "../pages/admin/ManageLoaiXN";//  import quản lý loại xét nghiệm
-//--------------------------------------------------------------------------------
 import ManageHoSoBenhAn from "../pages/admin/ManageHoSoBenhAn";//  import quản lý hồ sơ bệnh án
 import QuanLyThuocPage from "../pages/admin/thuoc/QuanLyThuocPage";//  import quản lý thuốc
 import QuanLyNhomThuoc from "../pages/admin/thuoc/QuanLyNhomThuoc";//  import quản lý nhóm thuốc
 import QuanLyDonViTinh from "../pages/admin/thuoc/QuanLyDonViTinh";//  import quản lý đơn vị tính thuốc
-import QuanLyHoaDonPage from "../pages/admin/hoadon/QuanLyHoaDonPage";//  import quản lý hóa đơn
 import TroLyBacSiPage from "../pages/admin/nhansu/TroLyBacSiPage";  //  import quản lý trợ lý bác sĩ
+import ThongKeHoaDonPage from "../pages/admin/thongke/ThongKeHoaDonPage"; //  import quản lý thống kê hóa đơn
 //--------------------------------------------------------------------------------
 import QuanLyYeuCauXNPage from "../pages/bacsi/xetnghiem/QuanLyYeuCauXNPage";//  import quản lý yêu cầu xét nghiệm
 import PhieuXetNghiemPage from "../pages/bacsi/xetnghiem/PhieuXetNghiemPage";//  import quản lý phiếu xét nghiệm
@@ -95,7 +94,7 @@ function AppRoutes() {
           <Route path="thuoc" element={<QuanLyThuocPage />} />
            <Route path="nhomthuoc" element={<QuanLyNhomThuoc />} />
           <Route path="donvitinh" element={<QuanLyDonViTinh />} />
-          <Route path="hoadon" element={<QuanLyHoaDonPage />} />
+          <Route path="thongke" element={<ThongKeHoaDonPage />} />
           <Route path="nhansu/troly" element={<TroLyBacSiPage />} />
           <Route path="nhansu/catruc" element={<QuanLyCaTrucPage />} />
 

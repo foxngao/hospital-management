@@ -32,6 +32,7 @@ exports.register = async (req, res) => {
       trangThai: true,
     });
 
+    // ✅ Tự động thêm vào bảng BenhNhan
     if (maNhom === "BENHNHAN") {
       await BenhNhan.create({
         maBN: maTK,
@@ -50,7 +51,7 @@ exports.register = async (req, res) => {
 
 /**
  * Đăng nhập hệ thống
- * Trả về token + thông tin người dùng (bao gồm loaiNS nếu là NHANSU)
+ * Trả về token + thông tin người dùng (gồm loaiNS, maBN nếu là bệnh nhân)
  */
 exports.login = async (req, res) => {
   const errors = validationResult(req);
@@ -87,6 +88,14 @@ exports.login = async (req, res) => {
       loaiNS = ns?.loaiNS || null;
     }
 
+    // ✅ Lấy maBN nếu là bệnh nhân
+    let maBN = null;
+    if (user.maNhom === "BENHNHAN") {
+      const benhNhan = await BenhNhan.findOne({ where: { maTK: user.maTK } });
+      console.log("🟡 Debug BenhNhan:", benhNhan); // LOG KIỂM TRA
+      maBN = benhNhan?.maBN || null;
+    }
+
     res.status(200).json({
       token,
       message: "Đăng nhập thành công",
@@ -97,6 +106,7 @@ exports.login = async (req, res) => {
         maNhom: user.maNhom,
         tenNhom: nhomQuyen?.tenNhom || "Không xác định",
         loaiNS,
+        maBN, // ✅ Trả về cho frontend
       },
     });
   } catch (error) {

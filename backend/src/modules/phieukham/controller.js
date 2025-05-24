@@ -76,3 +76,18 @@ exports.remove = async (req, res) => {
     res.status(500).json({ message: "Lỗi xoá phiếu khám", error: err.message });
   }
 };
+
+// Lấy thông tin 1 phiếu khám cụ thể
+exports.getByPK = async (req, res) => {
+  try {
+    const { maPK } = req.params;
+    const pk = await PhieuKham.findOne({ where: { maPK } });
+
+    if (!pk) return res.status(404).json({ message: "Không tìm thấy phiếu khám" });
+
+    res.json({ message: "Thông tin phiếu khám", data: pk });
+  } catch (err) {
+    console.error("❌ Lỗi getByPK:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};

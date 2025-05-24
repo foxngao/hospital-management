@@ -179,3 +179,49 @@ exports.getById = async (req, res) => {
     res.status(500).json({ message: "Lỗi lấy tài khoản", error: error.message });
   }
 };
+
+/**
+ * Nhân viên y tế đăng ký hộ bệnh nhân (gọi từ YTá)
+ */
+exports.dangKyBenhNhan = async (req, res) => {
+  try {
+    const {
+      tenDangNhap, matKhau, email,
+      hoTen, ngaySinh, gioiTinh,
+      diaChi, soDienThoai, bhyt,
+    } = req.body;
+
+    const existing = await TaiKhoan.findOne({ where: { tenDangNhap } });
+    if (existing)
+      return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
+
+    const maTK = uuidv4().slice(0, 8).toUpperCase();
+    const hashedPassword = await bcrypt.hash(matKhau, 10);
+
+    const taiKhoan = await TaiKhoan.create({
+      maTK,
+      tenDangNhap,
+      matKhau: hashedPassword,
+      email,
+      maNhom: "BENHNHAN",
+      trangThai: true,
+    });
+
+    const benhNhan = await BenhNhan.create({
+      maBN: maTK,
+      hoTen,
+      ngaySinh,
+      gioiTinh,
+      diaChi,
+      soDienThoai,
+      email,
+      bhyt,
+      maTK,
+    });
+
+    res.status(201).json({ message: "Tạo bệnh nhân thành công", data: { taiKhoan, benhNhan } });
+  } catch (err) {
+    console.error("❌ Lỗi đăng ký bệnh nhân:", err);
+    res.status(500).json({ message: "Lỗi đăng ký", error: err.message });
+  }
+};

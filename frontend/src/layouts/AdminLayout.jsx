@@ -42,7 +42,8 @@ function AdminLayout() {
           <a href="/admin/donvitinh" className="block hover:bg-gray-700 p-2 rounded">📐 Quản lý đơn vị tính</a>
 
           {/* Hóa đơn */}
-          <a href="/admin/hoadon" className="block hover:bg-gray-700 p-2 rounded">🧾 Quản lý hoá đơn</a>
+          <a href="/admin/thongke" className="block hover:bg-gray-700 p-2 rounded">📊 Thống kê hóa đơn</a>
+
           
           <a href="/admin/nhansu/catruc" className="block hover:bg-gray-700 p-2 rounded">🕐 Quản lý ca trực</a>
 

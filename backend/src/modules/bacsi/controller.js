@@ -40,3 +40,16 @@ exports.remove = async (req, res) => {
     res.status(500).json({ message: "Lỗi xoá", error: err.message });
   }
 };
+
+
+exports.getByMaTK = async (req, res) => {
+  try {
+    const bacsi = await BacSi.findOne({ where: { maTK: req.params.maTK } });
+    if (!bacsi)
+      return res.status(404).json({ message: "Không tìm thấy bác sĩ với mã tài khoản này" });
+    res.json({ success: true, data: bacsi });
+  } catch (err) {
+    console.error("❌ Lỗi Sequelize:", err);
+    res.status(500).json({ message: "Lỗi truy xuất bác sĩ", error: err.message });
+  }
+};

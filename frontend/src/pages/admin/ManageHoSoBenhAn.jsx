@@ -1,21 +1,31 @@
-// 📁 File: src/pages/admin/ManageHoSoBenhAn.jsx
-// ✅ Quản lý hồ sơ bệnh án – đúng với controller: không maBS, không chuanDoan, không ngayLap
+// File: src/pages/admin/ManageHoSoBenhAn.jsx
+// Admin chỉ xem + xoá, không được tạo HSBA – dotKhamBenh auto giờ Việt Nam
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axiosClient";
 import toast from "react-hot-toast";
 
 function ManageHoSoBenhAn() {
   const [list, setList] = useState([]);
-  const [form, setForm] = useState(null);
   const [dsBN, setDsBN] = useState([]);
   const token = localStorage.getItem("token");
+  const isAdmin = localStorage.getItem("role") === "ADMIN";
+
+  const getVNDateTimeLocal = () => {
+    const now = new Date();
+    now.setHours(now.getHours() + 7);
+    return now.toISOString().slice(0, 16);
+  };
+
+  const [form, setForm] = useState({
+    dotKhamBenh: getVNDateTimeLocal(),
+  });
 
   const fetchAll = async () => {
     try {
       const [res, bnRes] = await Promise.all([
-        axios.get("/api/hsba", { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get("/api/benhnhan", { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get("/hsba", { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get("/benhnhan", { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       if (!res.data.success) throw new Error("API trả về lỗi");
@@ -38,11 +48,11 @@ function ManageHoSoBenhAn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/hsba", form, {
+      await axios.post("/hsba", form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Tạo hồ sơ thành công");
-      setForm(null);
+      setForm({ dotKhamBenh: getVNDateTimeLocal() });
       fetchAll();
     } catch {
       toast.error("Lỗi khi lưu hồ sơ");
@@ -52,7 +62,7 @@ function ManageHoSoBenhAn() {
   const handleDelete = async (id) => {
     if (!window.confirm("Xác nhận xoá hồ sơ?")) return;
     try {
-      await axios.delete(`/api/hsba/${id}`, {
+      await axios.delete(`/hsba/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Đã xoá hồ sơ");
@@ -66,56 +76,58 @@ function ManageHoSoBenhAn() {
     <div className="p-4 max-w-5xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Quản lý hồ sơ bệnh án</h2>
 
-      <form onSubmit={handleSubmit} className="bg-gray-100 p-4 rounded mb-6 space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <select
-            name="maBN"
-            value={form?.maBN || ""}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          >
-            <option value="">-- Chọn bệnh nhân --</option>
-            {dsBN.map((bn) => (
-              <option key={bn.maBN} value={bn.maBN}>
-                {bn.hoTen}
-              </option>
-            ))}
-          </select>
+      {!isAdmin && (
+        <form onSubmit={handleSubmit} className="bg-gray-100 p-4 rounded mb-6 space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <select
+              name="maBN"
+              value={form?.maBN || ""}
+              onChange={handleChange}
+              className="border p-2 rounded"
+              required
+            >
+              <option value="">-- Chọn bệnh nhân --</option>
+              {dsBN.map((bn) => (
+                <option key={bn.maBN} value={bn.maBN}>
+                  {bn.hoTen}
+                </option>
+              ))}
+            </select>
 
-          <input
-            name="dotKhamBenh"
-            value={form?.dotKhamBenh || ""}
-            onChange={handleChange}
-            placeholder="Đợt khám bệnh"
-            className="border p-2 rounded"
-            required
-          />
+            <input
+              type="datetime-local"
+              name="dotKhamBenh"
+              value={form?.dotKhamBenh || ""}
+              onChange={handleChange}
+              className="border p-2 rounded"
+              required
+            />
 
-          <input
-            name="lichSuBenh"
-            value={form?.lichSuBenh || ""}
-            onChange={handleChange}
-            placeholder="Lịch sử bệnh"
-            className="border p-2 rounded"
-            required
-          />
+            <input
+              name="lichSuBenh"
+              value={form?.lichSuBenh || ""}
+              onChange={handleChange}
+              placeholder="Lịch sử bệnh"
+              className="border p-2 rounded"
+              required
+            />
 
-          <input
-            name="ghiChu"
-            value={form?.ghiChu || ""}
-            onChange={handleChange}
-            placeholder="Ghi chú"
-            className="border p-2 rounded"
-          />
-        </div>
+            <input
+              name="ghiChu"
+              value={form?.ghiChu || ""}
+              onChange={handleChange}
+              placeholder="Ghi chú"
+              className="border p-2 rounded"
+            />
+          </div>
 
-        <div className="text-right">
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-            Tạo hồ sơ
-          </button>
-        </div>
-      </form>
+          <div className="text-right">
+            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+              Tạo hồ sơ
+            </button>
+          </div>
+        </form>
+      )}
 
       <table className="w-full border text-left text-sm">
         <thead className="bg-gray-100">

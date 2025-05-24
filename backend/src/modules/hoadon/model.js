@@ -2,20 +2,20 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../config/sequelize");
 
-// Hóa đơn
+// ---------------- HÓA ĐƠN ----------------
 const HoaDon = sequelize.define("HoaDon", {
   maHD: { type: DataTypes.STRING, primaryKey: true },
   maBN: { type: DataTypes.STRING, allowNull: false },
   ngayLap: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   tongTien: { type: DataTypes.DECIMAL(15, 2), defaultValue: 0 },
   trangThai: { type: DataTypes.STRING, defaultValue: "CHUA_THANH_TOAN" },
-  maNS: { type: DataTypes.STRING, allowNull: false },
+  maNS: { type: DataTypes.STRING, allowNull: true }, // ✅ CHO PHÉP null vì bệnh nhân không có nhân sự
 }, {
   tableName: "HoaDon",
   timestamps: false,
 });
 
-// Chi tiết hóa đơn
+// ---------------- CHI TIẾT HOÁ ĐƠN ----------------
 const ChiTietHoaDon = sequelize.define("ChiTietHoaDon", {
   maCTHD: { type: DataTypes.STRING, primaryKey: true },
   maHD: { type: DataTypes.STRING, allowNull: false },
@@ -29,7 +29,7 @@ const ChiTietHoaDon = sequelize.define("ChiTietHoaDon", {
   timestamps: false,
 });
 
-// Thanh toán
+// ---------------- THANH TOÁN ----------------
 const ThanhToan = sequelize.define("ThanhToan", {
   maTT: { type: DataTypes.STRING, primaryKey: true },
   maHD: { type: DataTypes.STRING, allowNull: false },
@@ -42,7 +42,7 @@ const ThanhToan = sequelize.define("ThanhToan", {
   timestamps: false,
 });
 
-// Giỏ hàng
+// ---------------- GIỎ HÀNG ----------------
 const GioHang = sequelize.define("GioHang", {
   maGH: { type: DataTypes.STRING, primaryKey: true },
   maBN: { type: DataTypes.STRING, allowNull: false },
@@ -53,6 +53,7 @@ const GioHang = sequelize.define("GioHang", {
   timestamps: false,
 });
 
+// ---------------- CHI TIẾT GIỎ HÀNG ----------------
 const ChiTietGioHang = sequelize.define("ChiTietGioHang", {
   maCTGH: { type: DataTypes.STRING, primaryKey: true },
   maGH: { type: DataTypes.STRING, allowNull: false },
@@ -66,4 +67,11 @@ const ChiTietGioHang = sequelize.define("ChiTietGioHang", {
   timestamps: false,
 });
 
-module.exports = { HoaDon, ChiTietHoaDon, ThanhToan, GioHang, ChiTietGioHang };
+// ✅ Xuất các model
+module.exports = {
+  HoaDon,
+  ChiTietHoaDon,
+  ThanhToan,
+  GioHang,
+  ChiTietGioHang
+};

@@ -1,6 +1,7 @@
 const { LichKham, BacSi, BenhNhan } = require("../../models");
 const { v4: uuidv4 } = require("uuid");
 
+//  Lấy toàn bộ lịch khám
 exports.getAll = async (req, res) => {
   try {
     const data = await LichKham.findAll({
@@ -15,10 +16,11 @@ exports.getAll = async (req, res) => {
   }
 };
 
+//  Tạo lịch khám mới
 exports.create = async (req, res) => {
   try {
     const { maBN, maBS, ngayKham, gioKham, phong, ghiChu } = req.body;
-    const maLich = uuidv4().slice(0, 8).toUpperCase(); // VD: "3FD28A9C"
+    const maLich = uuidv4().slice(0, 8).toUpperCase();
     const lich = await LichKham.create({ maLich, maBN, maBS, ngayKham, gioKham, phong, ghiChu });
     res.status(201).json({ message: "Tạo lịch khám thành công", data: lich });
   } catch (err) {
@@ -26,6 +28,7 @@ exports.create = async (req, res) => {
   }
 };
 
+//  Cập nhật lịch
 exports.update = async (req, res) => {
   try {
     const { ngayKham, gioKham, phong, ghiChu } = req.body;
@@ -42,6 +45,7 @@ exports.update = async (req, res) => {
   }
 };
 
+//  Xoá lịch
 exports.remove = async (req, res) => {
   try {
     const deleted = await LichKham.destroy({ where: { maLich: req.params.id } });
@@ -50,5 +54,24 @@ exports.remove = async (req, res) => {
     res.json({ message: "Xoá thành công" });
   } catch (err) {
     res.status(500).json({ message: "Lỗi xoá lịch khám", error: err.message });
+  }
+};
+
+// KIỂM TRA TRÙNG LỊCH
+exports.checkTrungLich = async (req, res) => {
+  try {
+    const { maBS, ngay, gio } = req.query;
+
+    const exists = await LichKham.findOne({
+      where: {
+        maBS,
+        ngayKham: ngay,
+        gioKham: gio
+      }
+    });
+
+    res.json({ trung: !!exists });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi kiểm tra lịch", error: err.message });
   }
 };

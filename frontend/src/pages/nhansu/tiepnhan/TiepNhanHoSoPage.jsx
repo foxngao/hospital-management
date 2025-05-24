@@ -32,9 +32,28 @@ const TiepNhanHoSoPage = () => {
   };
 
   const handleCreate = async () => {
-    await createHoSo(form);
-    fetchData();
-    setForm({ maBN: "", dotKhamBenh: "", lichSuBenh: "", ghiChu: "" });
+    try {
+      const selectedDate = form.dotKhamBenh?.split("T")[0]; // YYYY-MM-DD
+
+      // Giờ hiện tại theo múi giờ Việt Nam (UTC+7)
+      const now = new Date();
+      const vietnamTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+      const hh = vietnamTime.getHours().toString().padStart(2, "0");
+      const mm = vietnamTime.getMinutes().toString().padStart(2, "0");
+
+      // Kết hợp lại thành giá trị datetime-local hợp lệ
+      const finalDateTime = `${selectedDate}T${hh}:${mm}`;
+      const payload = {
+        ...form,
+        dotKhamBenh: new Date(finalDateTime).toISOString(),
+      };
+
+      await createHoSo(payload);
+      fetchData();
+      setForm({ maBN: "", dotKhamBenh: "", lichSuBenh: "", ghiChu: "" });
+    } catch (error) {
+      console.error("❌ Lỗi tạo hồ sơ:", error);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -57,10 +76,10 @@ const TiepNhanHoSoPage = () => {
           ))}
         </select>
         <input
+          type="date"
           name="dotKhamBenh"
           value={form.dotKhamBenh}
           onChange={handleChange}
-          placeholder="Đợt khám bệnh"
           className="input"
         />
         <textarea

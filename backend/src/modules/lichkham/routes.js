@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const controller = require("./controller");
 
+
+router.get("/check", controller.checkTrungLich);
+
 router.get("/", controller.getAll);
 router.post("/", controller.create);
 router.put("/:id", controller.update);

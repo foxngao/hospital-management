@@ -6,11 +6,20 @@ import {
   deleteYeuCau,
 } from "../../../services/xetnghiem/yeucauxetnghiemService";
 import axios from "../../../api/axiosClient";
+import { useAuth } from "../../../auth/AuthContext";
 
 const QuanLyYeuCauXNPage = () => {
+  const { maTK } = useAuth(); // ✅ lấy từ context
+  const [maBS, setMaBS] = useState("");
   const [list, setList] = useState([]);
   const [benhNhan, setBenhNhan] = useState([]);
-  const [form, setForm] = useState({ maBN: "", loaiYeuCau: "", trangThai: "Chờ xử lý" });
+  const [dsLoaiYeuCau, setDsLoaiYeuCau] = useState([]);
+
+  const [form, setForm] = useState({
+    maBN: "",
+    loaiYeuCau: "",
+    trangThai: "Chờ xử lý",
+  });
 
   const fetchData = async () => {
     const res = await getAllYeuCau();
@@ -22,9 +31,28 @@ const QuanLyYeuCauXNPage = () => {
     setBenhNhan(res.data.data || []);
   };
 
+  const fetchLoaiYeuCau = () => {
+    setDsLoaiYeuCau([
+      { value: "THONG_THUONG", label: "Thông thường" },
+      { value: "KHAN_CAP", label: "Khẩn cấp" },
+      { value: "THEO_DOI", label: "Theo dõi" },
+    ]);
+  };
+
+  const fetchMaBS = async () => {
+    try {
+      const res = await axios.get(`/bacsi/tk/${maTK}`);
+      setMaBS(res.data.data.maBS);
+    } catch (err) {
+      console.error("❌ Lỗi lấy maBS:", err);
+    }
+  };
+
   useEffect(() => {
     fetchData();
     fetchBenhNhan();
+    fetchLoaiYeuCau();
+    fetchMaBS();
   }, []);
 
   const handleChange = (e) => {
@@ -32,7 +60,8 @@ const QuanLyYeuCauXNPage = () => {
   };
 
   const handleCreate = async () => {
-    await createYeuCau(form);
+    const payload = { ...form, maBS };
+    await createYeuCau(payload);
     fetchData();
     setForm({ maBN: "", loaiYeuCau: "", trangThai: "Chờ xử lý" });
   };
@@ -64,8 +93,16 @@ const QuanLyYeuCauXNPage = () => {
             <option key={bn.maBN} value={bn.maBN}>{bn.hoTen}</option>
           ))}
         </select>
-        <input name="loaiYeuCau" value={form.loaiYeuCau} onChange={handleChange} placeholder="Loại yêu cầu" className="input" />
+
+        <select name="loaiYeuCau" onChange={handleChange} value={form.loaiYeuCau} className="input">
+          <option value="">-- Loại yêu cầu --</option>
+          {dsLoaiYeuCau.map((item, idx) => (
+            <option key={idx} value={item.value}>{item.label}</option>
+          ))}
+        </select>
+
         <input disabled value="Chờ xử lý" className="input bg-gray-100" />
+
         <button onClick={handleCreate} className="bg-blue-600 text-white px-4 py-2 rounded col-span-2">
           ➕ Tạo yêu cầu
         </button>

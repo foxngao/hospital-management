@@ -1,56 +1,98 @@
 import React, { useEffect, useState } from "react";
-import { getAllThuoc, getDonViTinh } from "../../../services/donthuoc/thuocService";
 import {
-  getDonThuocByPK,
   createDonThuoc,
-  deleteChiTietDonThuoc,
+  addThuocToDon,
+  getChiTietDonThuoc,
 } from "../../../services/donthuoc/donthuocService";
+import { getAllThuoc } from "../../../services/donthuoc/thuocService";
+import { getBacSiByTK } from "../../../services/bacsi/bacsiService";
 
 const KeDonThuocPage = () => {
   const [thuocs, setThuocs] = useState([]);
-  const [donVis, setDonVis] = useState([]);
-  const [dsDonThuoc, setDsDonThuoc] = useState([]);
-  const [form, setForm] = useState({
-    maPK: "",
+  const [maDT, setMaDT] = useState(null); // Mã đơn thuốc đã tạo
+  const [dsChiTiet, setDsChiTiet] = useState([]);
+  const [formDon, setFormDon] = useState({
+    maHSBA: "",
+    maBS: "",
+  });
+
+  const [formChiTiet, setFormChiTiet] = useState({
     maThuoc: "",
-    lieuLuong: "",
-    donVi: "",
-    soNgay: "",
-    ghiChu: "",
+    soLuong: "",
+    lieuDung: "",
   });
 
   useEffect(() => {
-    fetchInit();
+    fetchThuoc();
+    fetchMaBS();
   }, []);
 
-  const fetchInit = async () => {
-    const resThuoc = await getAllThuoc();
-    const resDonVi = await getDonViTinh();
-    setThuocs(resThuoc.data.data || []);
-    setDonVis(resDonVi.data.data || []);
+  const fetchThuoc = async () => {
+    try {
+      const res = await getAllThuoc();
+      setThuocs(res.data.data || []);
+    } catch (error) {
+      console.error("❌ Lỗi API /thuoc:", error);
+      alert("❌ Lỗi tải danh sách thuốc");
+    }
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const fetchMaBS = async () => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user.maNhom === "BACSI" && user.maTK) {
+      try {
+        const res = await getBacSiByTK(user.maTK);
+        const maBS = res.data.data?.maBS;
+        if (maBS) {
+          setFormDon((prev) => ({ ...prev, maBS }));
+        }
+      } catch {
+        alert("❌ Không lấy được mã bác sĩ từ tài khoản");
+      }
+    }
   };
 
-  const fetchDon = async () => {
-    if (!form.maPK) return;
-    const res = await getDonThuocByPK(form.maPK);
-    setDsDonThuoc(res.data.data || []);
+  const handleChangeDon = (e) => {
+    setFormDon({ ...formDon, [e.target.name]: e.target.value });
   };
 
-  const handleAdd = async () => {
-    if (!form.maPK || !form.maThuoc || !form.lieuLuong) return alert("Thiếu dữ liệu!");
-    await createDonThuoc(form);
-    fetchDon();
-    setForm({ ...form, maThuoc: "", lieuLuong: "", donVi: "", soNgay: "", ghiChu: "" });
+  const handleChangeChiTiet = (e) => {
+    setFormChiTiet({ ...formChiTiet, [e.target.name]: e.target.value });
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Xoá mục này?")) {
-      await deleteChiTietDonThuoc(id);
-      fetchDon();
+  const handleCreateDon = async () => {
+    const { maHSBA, maBS } = formDon;
+    if (!maHSBA || !maBS) return alert("Vui lòng nhập đầy đủ mã hồ sơ và bác sĩ");
+    try {
+      const res = await createDonThuoc({ maHSBA, maBS });
+      const maDT_new = res.data.data.maDT;
+      setMaDT(maDT_new);
+      alert("✅ Đã tạo đơn thuốc");
+      fetchChiTiet(maDT_new);
+    } catch {
+      alert("❌ Lỗi tạo đơn thuốc");
+    }
+  };
+
+  const handleAddThuoc = async () => {
+    const { maThuoc, soLuong, lieuDung } = formChiTiet;
+    if (!maDT || !maThuoc || !soLuong || !lieuDung)
+      return alert("Thiếu dữ liệu kê thuốc");
+    try {
+      await addThuocToDon({ maDT, maThuoc, soLuong, lieuDung });
+      setFormChiTiet({ maThuoc: "", soLuong: "", lieuDung: "" });
+      fetchChiTiet(maDT);
+    } catch {
+      alert("❌ Lỗi thêm thuốc vào đơn");
+    }
+  };
+
+  const fetchChiTiet = async (ma) => {
+    try {
+      const res = await getChiTietDonThuoc(ma);
+      setDsChiTiet(res.data.data || []);
+    } catch {
+      alert("❌ Lỗi tải chi tiết đơn thuốc");
     }
   };
 
@@ -58,65 +100,91 @@ const KeDonThuocPage = () => {
     <div className="p-4 space-y-6">
       <h2 className="text-xl font-bold text-blue-700">💊 Kê đơn thuốc</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-4 rounded shadow">
+      {/* Form tạo đơn thuốc */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded shadow">
         <input
-          name="maPK"
-          value={form.maPK}
-          onChange={handleChange}
-          placeholder="Nhập mã phiếu khám"
-          className="input col-span-2"
+          name="maHSBA"
+          value={formDon.maHSBA}
+          onChange={handleChangeDon}
+          placeholder="Mã hồ sơ bệnh án"
+          className="input border p-2 rounded"
         />
-        <button onClick={fetchDon} className="bg-green-600 text-white px-4 py-2 rounded col-span-1">
-          📄 Xem đơn
+        <input
+          name="maBS"
+          value={formDon.maBS}
+          onChange={handleChangeDon}
+          placeholder="Mã bác sĩ"
+          className="input border p-2 rounded"
+          readOnly // vì đã tự động gán
+        />
+        <button onClick={handleCreateDon} className="bg-green-600 text-white px-4 py-2 rounded">
+          ➕ Tạo đơn thuốc
         </button>
+        {maDT && (
+          <div className="text-green-700 font-semibold pt-2">Mã đơn: {maDT}</div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-4 rounded shadow">
-        <select name="maThuoc" value={form.maThuoc} onChange={handleChange} className="input">
-          <option value="">-- Chọn thuốc --</option>
-          {thuocs.map((t) => (
-            <option key={t.maThuoc} value={t.maThuoc}>
-              {t.tenThuoc}
-            </option>
-          ))}
-        </select>
-        <input name="lieuLuong" value={form.lieuLuong} onChange={handleChange} placeholder="Liều lượng" className="input" />
-        <select name="donVi" value={form.donVi} onChange={handleChange} className="input">
-          <option value="">-- Đơn vị --</option>
-          {donVis.map((dv) => (
-            <option key={dv.maDVT} value={dv.tenDVT}>{dv.tenDVT}</option>
-          ))}
-        </select>
-        <input name="soNgay" value={form.soNgay} onChange={handleChange} placeholder="Số ngày" className="input" />
-        <input name="ghiChu" value={form.ghiChu} onChange={handleChange} placeholder="Ghi chú" className="input" />
-        <button onClick={handleAdd} className="bg-blue-600 text-white px-4 py-2 rounded">
-          ➕ Thêm
-        </button>
-      </div>
+      {/* Thêm thuốc vào đơn */}
+      {maDT && (
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-4 rounded shadow">
+          <select
+            name="maThuoc"
+            value={formChiTiet.maThuoc}
+            onChange={handleChangeChiTiet}
+            className="border p-2 rounded"
+          >
+            <option value="">-- Chọn thuốc --</option>
+            {thuocs.map((t) => (
+              <option key={t.maThuoc} value={t.maThuoc}>
+                {t.tenThuoc}
+              </option>
+            ))}
+          </select>
+          <input
+            name="soLuong"
+            value={formChiTiet.soLuong}
+            onChange={handleChangeChiTiet}
+            placeholder="Số lượng"
+            className="border p-2 rounded"
+          />
+          <input
+            name="lieuDung"
+            value={formChiTiet.lieuDung}
+            onChange={handleChangeChiTiet}
+            placeholder="Liều dùng"
+            className="border p-2 rounded"
+          />
+          <button
+            onClick={handleAddThuoc}
+            className="bg-blue-600 text-white px-4 py-2 rounded col-span-2"
+          >
+            ➕ Thêm vào đơn
+          </button>
+        </div>
+      )}
 
-      <table className="min-w-full text-sm bg-white shadow rounded">
-        <thead>
-          <tr>
-            <th>Thuốc</th><th>Liều</th><th>Đơn vị</th><th>Số ngày</th><th>Ghi chú</th><th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {dsDonThuoc.map((ct) => (
-            <tr key={ct.maCT || ct.maThuoc + ct.maDon} className="border-t">
-              <td>{ct.tenThuoc}</td>
-              <td>{ct.lieuLuong}</td>
-              <td>{ct.donVi}</td>
-              <td>{ct.soNgay}</td>
-              <td>{ct.ghiChu}</td>
-              <td>
-                <button onClick={() => handleDelete(ct.maCT)} className="text-red-600 hover:underline">
-                  Xoá
-                </button>
-              </td>
+      {/* Danh sách thuốc đã thêm */}
+      {dsChiTiet.length > 0 && (
+        <table className="min-w-full text-sm bg-white shadow rounded">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2">Mã thuốc</th>
+              <th className="p-2">Số lượng</th>
+              <th className="p-2">Liều dùng</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {dsChiTiet.map((ct) => (
+              <tr key={ct.maCTDT} className="border-t">
+                <td className="p-2">{ct.maThuoc}</td>
+                <td className="p-2">{ct.soLuong}</td>
+                <td className="p-2">{ct.lieuDung}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

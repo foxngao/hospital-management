@@ -8,5 +8,6 @@ router.get("/bacsi/:maBS", controller.getByBacSi);      // Lấy theo bác sĩ
 router.post("/", controller.create);                    // Tạo mới
 router.put("/:id", controller.update);                  // Cập nhật
 router.delete("/:id", controller.remove);               // Xoá
+router.get("/:maPK", controller.getByPK);           // Lấy theo mã phiếu khám
 
 module.exports = router;

@@ -40,4 +40,8 @@ const loginValidator = [
 router.post("/register", registerValidator, controller.register);
 router.post("/login", loginValidator, controller.login);
 
+
+
+
+
 module.exports = router;

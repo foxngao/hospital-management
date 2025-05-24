@@ -56,11 +56,30 @@ exports.createThuoc = async (req, res) => {
 exports.updateThuoc = async (req, res) => {
   try {
     const maThuoc = req.params.id;
-    const data = req.body;
+    const {
+      tenThuoc, tenHoatChat, hamLuong, maDVT, maNhom,
+      soDangKy, nuocSanXuat, hangSanXuat,
+      giaNhap, giaBanLe, giaBanBuon,
+      tonKhoToiThieu, tonKhoHienTai, hanSuDung, trangThai
+    } = req.body;
+
+    const data = {
+      tenThuoc, tenHoatChat, hamLuong, maDVT, maNhom,
+      soDangKy, nuocSanXuat, hangSanXuat,
+      giaNhap, giaBanLe, giaBanBuon,
+      tonKhoToiThieu, tonKhoHienTai, hanSuDung
+    };
+
+    // ✅ Chỉ thêm trangThai nếu được gửi lên
+    if (trangThai !== undefined) {
+      data.trangThai = trangThai;
+    }
 
     const [updated] = await Thuoc.update(data, { where: { maThuoc } });
 
-    if (!updated) return res.status(404).json({ message: "Không tìm thấy thuốc để cập nhật" });
+    if (!updated) {
+      return res.status(404).json({ message: "Không tìm thấy thuốc để cập nhật" });
+    }
 
     res.json({ message: "Cập nhật thuốc thành công" });
   } catch (err) {
@@ -68,6 +87,7 @@ exports.updateThuoc = async (req, res) => {
     res.status(500).json({ message: "Lỗi cập nhật thuốc", error: err.message });
   }
 };
+
 
 exports.deleteThuoc = async (req, res) => {
   try {

@@ -49,15 +49,24 @@ const QuanLyThuocPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (isUpdate) {
-      await updateThuoc(formData.maThuoc, formData);
-    } else {
-      await createThuoc(formData);
-    }
-    await fetchData();
-    setFormData({});
-    setIsUpdate(false);
+  const dataToSubmit = {
+    ...formData,
+    hanSuDung: formData.hanSuDung?.slice(0, 10),
+    trangThai: 1,
   };
+
+  if (isUpdate) {
+    await updateThuoc(formData.maThuoc, dataToSubmit);
+  } else {
+    await createThuoc(dataToSubmit);
+  }
+
+  await fetchData();
+  setFormData({});
+  setIsUpdate(false);
+};
+
+
 
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn xoá thuốc này?")) {

@@ -1,12 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { getLichByBS, createLich, updateLich, deleteLich } from "../../../services/lich/lichlamviecService";
+import {
+  getLichByBS,
+  createLich,
+  updateLich,
+  deleteLich,
+} from "../../../services/lich/lichlamviecService";
 import axios from "../../../api/axiosClient";
 
 const LichLamViecPage = () => {
+  const maNS = localStorage.getItem("maTK");
   const [list, setList] = useState([]);
-  const [form, setForm] = useState({ maCa: "", ngayLamViec: "" });
+  const [form, setForm] = useState({
+    maCa: "",
+    ngayLamViec: "", // sẽ tự set theo giờ VN
+  });
   const [caList, setCaList] = useState([]);
-  const maNS = localStorage.getItem("maTK"); // lấy mã người dùng từ token
+
+  // Set ngày hôm nay theo giờ Việt Nam
+  useEffect(() => {
+    const nowVN = new Date().toLocaleString("en-CA", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).split(",")[0]; // yyyy-mm-dd
+    setForm((f) => ({ ...f, ngayLamViec: nowVN }));
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -29,7 +48,7 @@ const LichLamViecPage = () => {
     if (!form.maCa || !form.ngayLamViec) return alert("Vui lòng nhập đầy đủ thông tin");
     await createLich({ ...form, maNS });
     fetchData();
-    setForm({ maCa: "", ngayLamViec: "" });
+    setForm((f) => ({ ...f, maCa: "" }));
   };
 
   const handleUpdate = async (id) => {
@@ -91,8 +110,18 @@ const LichLamViecPage = () => {
               <td>{row.maCa}</td>
               <td>{row.ngayLamViec}</td>
               <td className="space-x-2">
-                <button onClick={() => handleUpdate(row.maLichLV)} className="text-green-600 hover:underline">Sửa</button>
-                <button onClick={() => handleDelete(row.maLichLV)} className="text-red-600 hover:underline">Xoá</button>
+                <button
+                  onClick={() => handleUpdate(row.maLichLV)}
+                  className="text-green-600 hover:underline"
+                >
+                  Sửa
+                </button>
+                <button
+                  onClick={() => handleDelete(row.maLichLV)}
+                  className="text-red-600 hover:underline"
+                >
+                  Xoá
+                </button>
               </td>
             </tr>
           ))}

@@ -8,9 +8,10 @@ const errorHandler = require("./utils/errorHandler");
 dotenv.config();
 
 app.use(cors({
-  origin: "http://localhost:4001",  // 👈 frontend port thật sự bạn đang chạy
+  origin: ["http://localhost:5173", "http://localhost:4001"],
   credentials: true
 }));
+
 
 // Cấu hình cho phép nhận dữ liệu JSON và form-urlencoded
 app.use(express.json());

@@ -15,12 +15,17 @@ function LoginPage() {
       if (res.data && res.data.token && res.data.user) {
         const { token, user } = res.data;
 
-        // Lưu token và thông tin tài khoản
+        // ✅ Lưu token và thông tin tài khoản
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("maTK", user.maTK);
         localStorage.setItem("role", user.maNhom);
         localStorage.setItem("loaiNS", user.loaiNS || "");
+
+        // ✅ Lưu maBN nếu là bệnh nhân
+        if (user.maNhom === "BENHNHAN") {
+          localStorage.setItem("maBN", user.maBN);
+        }
 
         toast.success("Đăng nhập thành công!");
 
@@ -55,7 +60,9 @@ function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50">
       <div className="bg-white shadow-md p-8 rounded-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-blue-600">Đăng nhập hệ thống bệnh viện</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-blue-600">
+          Đăng nhập hệ thống bệnh viện
+        </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
@@ -73,7 +80,10 @@ function LoginPage() {
             className="w-full border p-2 rounded"
             required
           />
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
             Đăng nhập
           </button>
         </form>

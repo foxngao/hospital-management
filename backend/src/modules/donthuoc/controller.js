@@ -13,16 +13,23 @@ exports.getAll = async (req, res) => {
   }
 };
 
-// Tạo đơn thuốc mới
+// ✅ Tạo đơn thuốc rỗng
 exports.create = async (req, res) => {
   try {
-    const { maHSBA, maBS, maThuoc } = req.body;
+    const { maHSBA, maBS } = req.body;
     const maDT = uuidv4().slice(0, 8).toUpperCase();
 
-    const created = await DonThuoc.create({ maDT, maHSBA, maBS, maThuoc });
+    const created = await DonThuoc.create({
+      maDT,
+      maHSBA,
+      maBS,
+      maThuoc: null, // đơn rỗng, thuốc thêm sau
+    });
+
     res.status(201).json({ message: "Tạo đơn thuốc thành công", data: created });
   } catch (err) {
-    console.error("❌ Lỗi Sequelize:", err);
+    console.error("❌ Lỗi tạo đơn thuốc:", err);
+    console.error("🔍 Chi tiết:", err?.original?.sqlMessage);
     res.status(500).json({ message: "Lỗi tạo đơn thuốc", error: err.message });
   }
 };
@@ -33,7 +40,14 @@ exports.addChiTiet = async (req, res) => {
     const { maDT, maThuoc, soLuong, lieuDung } = req.body;
     const maCTDT = uuidv4().slice(0, 8).toUpperCase();
 
-    const detail = await ChiTietDonThuoc.create({ maCTDT, maDT, maThuoc, soLuong, lieuDung });
+    const detail = await ChiTietDonThuoc.create({
+      maCTDT,
+      maDT,
+      maThuoc,
+      soLuong,
+      lieuDung,
+    });
+
     res.status(201).json({ message: "Thêm chi tiết đơn thuốc thành công", data: detail });
   } catch (err) {
     console.error("❌ Lỗi Sequelize:", err);

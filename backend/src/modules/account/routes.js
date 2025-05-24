@@ -18,6 +18,6 @@ router.post(
 );
 router.put("/:id", verifyToken, checkRole("ADMIN"), controller.update);
 router.delete("/:id", verifyToken, checkRole("ADMIN"), controller.remove);
-
+router.post("/dangky-benhnhan", controller.dangKyBenhNhan);
 
 module.exports = router;

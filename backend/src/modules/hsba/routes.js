@@ -6,7 +6,7 @@ const verifyToken = require("../../middleware/auth");
 
 router.get("/", verifyToken, checkRole("ADMIN", "BACSI", "NHANSU"), controller.getAll);
 router.post("/", verifyToken, checkRole("BACSI", "NHANSU"), controller.create);
-router.delete("/:id", verifyToken, checkRole("ADMIN", "NHANSU"), controller.remove);
+router.delete("/:id", verifyToken, checkRole("ADMIN", "NHANSU", "BACSI"), controller.remove);
 
 // Bệnh nhân xem hồ sơ của chính mình
 router.get("/benhnhan/:maBN", verifyToken, checkRole("BENHNHAN"), controller.getByBenhNhan);

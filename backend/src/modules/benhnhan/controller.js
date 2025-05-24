@@ -36,3 +36,16 @@ exports.remove = async (req, res) => {
     res.status(500).json({ message: "Lỗi xoá bệnh nhân", error: err.message });
   }
 };
+
+exports.findByMaTK = async (req, res) => {
+  try {
+    const info = await BenhNhan.findOne({
+      where: { maTK: req.params.maTK },
+      include: [{ model: TaiKhoan, attributes: ["tenDangNhap", "email", "trangThai"] }]
+    });
+    if (!info) return res.status(404).json({ message: "Không tìm thấy" });
+    res.json({ success: true, data: info });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi tìm bệnh nhân", error: err.message });
+  }
+};
