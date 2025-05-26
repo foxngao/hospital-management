@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import dayjs from "dayjs"; // ✅ Thêm thư viện format ngày
 import {
   getGioHang,
   addToGioHang,
@@ -123,6 +124,7 @@ const GioHangThanhToanPage = () => {
     });
     setFormTT({ maHD: "", soTien: "", phuongThuc: "" });
     loadHoaDon();
+    handleXemChiTiet(formTT.maHD); // ✅ Cập nhật chi tiết sau thanh toán
     alert("✅ Thanh toán thành công!");
   };
 
@@ -148,7 +150,7 @@ const GioHangThanhToanPage = () => {
           name="loaiDichVu"
           onChange={handleLoaiDichVuChange}
           value={form.loaiDichVu}
-          className="input"
+          className="border px-2 py-1 rounded"
         >
           <option value="">-- Loại dịch vụ --</option>
           <option value="KHAM">Khám</option>
@@ -160,7 +162,7 @@ const GioHangThanhToanPage = () => {
           name="maDichVu"
           value={form.maDichVu}
           onChange={handleMaDichVuChange}
-          className="input"
+          className="border px-2 py-1 rounded"
         >
           <option value="">-- Chọn dịch vụ --</option>
           {danhSachDichVu.map((item) => (
@@ -178,7 +180,7 @@ const GioHangThanhToanPage = () => {
           name="soLuong"
           value={form.soLuong}
           onChange={handleChange}
-          className="input"
+          className="border px-2 py-1 rounded"
           placeholder="Số lượng"
         />
         <input
@@ -186,7 +188,7 @@ const GioHangThanhToanPage = () => {
           name="donGia"
           value={form.donGia}
           onChange={handleChange}
-          className="input"
+          className="border px-2 py-1 rounded"
           placeholder="Đơn giá"
         />
         <button
@@ -258,7 +260,7 @@ const GioHangThanhToanPage = () => {
                 <td>{hd.maHD}</td>
                 <td>{hd.tongTien}</td>
                 <td>{hd.trangThai}</td>
-                <td>{hd.ngayLap}</td>
+                <td>{dayjs(hd.ngayLap).format("DD/MM/YYYY HH:mm")}</td>
                 <td>
                   <button
                     onClick={() => handleXemChiTiet(hd.maHD)}
@@ -282,21 +284,21 @@ const GioHangThanhToanPage = () => {
             placeholder="Mã hoá đơn (maHD)"
             value={formTT.maHD}
             onChange={(e) => handleMaHDChange(e.target.value)}
-            className="input"
+            className="border px-2 py-1 rounded"
           />
           <input
             type="number"
             placeholder="Số tiền"
             value={formTT.soTien}
             disabled
-            className="input bg-gray-100"
+            className="border px-2 py-1 rounded bg-gray-100"
           />
           <select
             value={formTT.phuongThuc}
             onChange={(e) =>
               setFormTT({ ...formTT, phuongThuc: e.target.value })
             }
-            className="input"
+            className="border px-2 py-1 rounded"
           >
             <option value="">-- Phương thức --</option>
             <option value="TIEN_MAT">Tiền mặt</option>

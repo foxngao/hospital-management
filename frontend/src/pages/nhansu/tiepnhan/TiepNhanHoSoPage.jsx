@@ -27,21 +27,30 @@ const TiepNhanHoSoPage = () => {
     setBenhNhanList(res.data.data || []);
   };
 
+  const formatDateTime = (isoString) => {
+    const date = new Date(isoString);
+    const yyyy = date.getFullYear();
+    const mm = `${date.getMonth() + 1}`.padStart(2, "0");
+    const dd = `${date.getDate()}`.padStart(2, "0");
+    const hh = `${date.getHours()}`.padStart(2, "0");
+    const min = `${date.getMinutes()}`.padStart(2, "0");
+    const ss = `${date.getSeconds()}`.padStart(2, "0");
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleCreate = async () => {
     try {
-      const selectedDate = form.dotKhamBenh?.split("T")[0]; // YYYY-MM-DD
+      const selectedDate = form.dotKhamBenh?.split("T")[0];
 
-      // Giờ hiện tại theo múi giờ Việt Nam (UTC+7)
       const now = new Date();
       const vietnamTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
       const hh = vietnamTime.getHours().toString().padStart(2, "0");
       const mm = vietnamTime.getMinutes().toString().padStart(2, "0");
 
-      // Kết hợp lại thành giá trị datetime-local hợp lệ
       const finalDateTime = `${selectedDate}T${hh}:${mm}`;
       const payload = {
         ...form,
@@ -64,74 +73,93 @@ const TiepNhanHoSoPage = () => {
   };
 
   return (
-    <div className="p-4 space-y-6">
-      <h2 className="text-xl font-bold text-blue-700">📁 Tiếp nhận hồ sơ bệnh án</h2>
+    <div className="p-6 space-y-6">
+      <h2 className="text-2xl font-bold text-blue-700">📁 Tiếp nhận hồ sơ bệnh án</h2>
 
-      {/* Form tiếp nhận */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded shadow">
-        <select name="maBN" value={form.maBN} onChange={handleChange} className="input">
-          <option value="">-- Chọn bệnh nhân --</option>
-          {benhNhanList.map((bn) => (
-            <option key={bn.maBN} value={bn.maBN}>{bn.hoTen}</option>
-          ))}
-        </select>
-        <input
-          type="date"
-          name="dotKhamBenh"
-          value={form.dotKhamBenh}
-          onChange={handleChange}
-          className="input"
-        />
-        <textarea
-          name="lichSuBenh"
-          value={form.lichSuBenh}
-          onChange={handleChange}
-          placeholder="Lịch sử bệnh"
-          className="input"
-        />
-        <textarea
-          name="ghiChu"
-          value={form.ghiChu}
-          onChange={handleChange}
-          placeholder="Ghi chú"
-          className="input"
-        />
-        <button onClick={handleCreate} className="bg-blue-600 text-white px-4 py-2 rounded col-span-2">
+      <div className="bg-white p-4 rounded-lg shadow space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <select
+            name="maBN"
+            value={form.maBN}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
+          >
+            <option value="">-- Chọn bệnh nhân --</option>
+            {benhNhanList.map((bn) => (
+              <option key={bn.maBN} value={bn.maBN}>
+                {bn.hoTen}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="date"
+            name="dotKhamBenh"
+            value={form.dotKhamBenh}
+            onChange={handleChange}
+            className="border rounded px-3 py-2"
+          />
+
+          <textarea
+            name="lichSuBenh"
+            value={form.lichSuBenh}
+            onChange={handleChange}
+            placeholder="Lịch sử bệnh"
+            className="border rounded px-3 py-2"
+          />
+
+          <textarea
+            name="ghiChu"
+            value={form.ghiChu}
+            onChange={handleChange}
+            placeholder="Ghi chú"
+            className="border rounded px-3 py-2"
+          />
+        </div>
+
+        <button
+          onClick={handleCreate}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
+        >
           ➕ Tạo hồ sơ
         </button>
       </div>
 
-      {/* Table hồ sơ */}
-      <table className="min-w-full text-sm bg-white shadow rounded">
-        <thead>
-          <tr>
-            <th>Mã HSBA</th>
-            <th>Bệnh nhân</th>
-            <th>Đợt khám</th>
-            <th>Lịch sử bệnh</th>
-            <th>Ghi chú</th>
-            <th>Ngày lập</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((hs) => (
-            <tr key={hs.maHSBA} className="border-t">
-              <td>{hs.maHSBA}</td>
-              <td>{hs.BenhNhan?.hoTen}</td>
-              <td>{hs.dotKhamBenh}</td>
-              <td>{hs.lichSuBenh}</td>
-              <td>{hs.ghiChu}</td>
-              <td>{hs.ngayLap}</td>
-              <td>
-                <button onClick={() => handleDelete(hs.maHSBA)} className="text-red-600 hover:underline">
-                  Xoá
-                </button>
-              </td>
+      <div className="overflow-x-auto bg-white rounded shadow">
+        <table className="min-w-full text-sm text-left">
+          <thead className="bg-blue-100 text-blue-700">
+            <tr>
+              <th className="p-2">Mã HSBA</th>
+              <th className="p-2">Bệnh nhân</th>
+              <th className="p-2">Đợt khám</th>
+              <th className="p-2">Lịch sử bệnh</th>
+              <th className="p-2">Ghi chú</th>
+              <th className="p-2">Ngày lập</th>
+              <th className="p-2"></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {list.map((hs) => (
+              <tr key={hs.maHSBA} className="border-t">
+                <td className="p-2">{hs.maHSBA}</td>
+                <td className="p-2">{hs.BenhNhan?.hoTen}</td>
+                <td className="p-2">{formatDateTime(hs.dotKhamBenh)}</td>
+                <td className="p-2">{hs.lichSuBenh}</td>
+                <td className="p-2">{hs.ghiChu}</td>
+                <td className="p-2">{formatDateTime(hs.ngayLap)}</td>
+                <td className="p-2">
+                  <button
+                    onClick={() => handleDelete(hs.maHSBA)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Xoá
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -2,39 +2,48 @@ import React, { useEffect, useState } from "react";
 import {
   getLichByBS,
   createLich,
-  updateLich,
   deleteLich,
 } from "../../../services/lich/lichlamviecService";
 import axios from "../../../api/axiosClient";
 
 const LichLamViecPage = () => {
-  const maNS = localStorage.getItem("maTK");
+  const maBS = localStorage.getItem("maBS");
+
   const [list, setList] = useState([]);
   const [form, setForm] = useState({
     maCa: "",
-    ngayLamViec: "", // sẽ tự set theo giờ VN
+    ngayLamViec: "",
+    maNS: "",
   });
-  const [caList, setCaList] = useState([]);
 
-  // Set ngày hôm nay theo giờ Việt Nam
+  const [caList, setCaList] = useState([]);
+  const [nhanSuList, setNhanSuList] = useState([]);
+
   useEffect(() => {
     const nowVN = new Date().toLocaleString("en-CA", {
       timeZone: "Asia/Ho_Chi_Minh",
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    }).split(",")[0]; // yyyy-mm-dd
+    }).split(",")[0];
     setForm((f) => ({ ...f, ngayLamViec: nowVN }));
   }, []);
 
   useEffect(() => {
-    fetchData();
+    if (maBS) {
+      fetchData();
+    }
     fetchCaList();
+    fetchNhanSuList();
   }, []);
 
   const fetchData = async () => {
-    const res = await getLichByBS(maNS);
-    setList(res.data.data || []);
+    try {
+      const res = await getLichByBS(maBS);
+      setList(res.data.data || []);
+    } catch (err) {
+      console.error("❌ Lỗi khi tải lịch làm việc:", err);
+    }
   };
 
   const fetchCaList = async () => {
@@ -42,22 +51,27 @@ const LichLamViecPage = () => {
     setCaList(res.data.data || []);
   };
 
+  const fetchNhanSuList = async () => {
+    const res = await axios.get("/nhansu");
+    setNhanSuList(res.data.data || []);
+  };
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleCreate = async () => {
-    if (!form.maCa || !form.ngayLamViec) return alert("Vui lòng nhập đầy đủ thông tin");
-    await createLich({ ...form, maNS });
-    fetchData();
-    setForm((f) => ({ ...f, maCa: "" }));
-  };
-
-  const handleUpdate = async (id) => {
-    const ngay = prompt("Nhập ngày mới (yyyy-mm-dd):");
-    const ca = prompt("Nhập mã ca mới:");
-    if (ngay && ca) {
-      await updateLich(id, { ngayLamViec: ngay, maCa: ca });
-      fetchData();
+    if (!form.maCa || !form.ngayLamViec || !form.maNS) {
+      return alert("Vui lòng nhập đầy đủ thông tin");
     }
+
+    await createLich({
+      maCa: form.maCa,
+      ngayLamViec: form.ngayLamViec,
+      maNS: form.maNS,
+      maBS: maBS,
+    });
+
+    fetchData();
+    setForm((f) => ({ ...f, maCa: "", maNS: "" }));
   };
 
   const handleDelete = async (id) => {
@@ -69,11 +83,15 @@ const LichLamViecPage = () => {
 
   return (
     <div className="p-4 space-y-6">
-      <h2 className="text-xl font-bold text-blue-700">📅 Lịch làm việc cá nhân</h2>
+      <h2 className="text-2xl font-bold text-blue-700">📅 Lịch làm việc cá nhân</h2>
 
-      {/* Form tạo lịch */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded shadow">
-        <select name="maCa" value={form.maCa} onChange={handleChange} className="input">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl shadow">
+        <select
+          name="maCa"
+          value={form.maCa}
+          onChange={handleChange}
+          className="border rounded px-3 py-2 w-full"
+        >
           <option value="">-- Chọn ca trực --</option>
           {caList.map((ca) => (
             <option key={ca.maCa} value={ca.maCa}>
@@ -81,52 +99,66 @@ const LichLamViecPage = () => {
             </option>
           ))}
         </select>
+
+        <select
+          name="maNS"
+          value={form.maNS}
+          onChange={handleChange}
+          className="border rounded px-3 py-2 w-full"
+        >
+          <option value="">-- Chọn nhân viên phụ trách --</option>
+          {nhanSuList.map((ns) => (
+            <option key={ns.maNS} value={ns.maNS}>
+              {ns.maNS} - {ns.hoTen}
+            </option>
+          ))}
+        </select>
+
         <input
           type="date"
           name="ngayLamViec"
           value={form.ngayLamViec}
           onChange={handleChange}
-          className="input"
+          className="border rounded px-3 py-2 w-full"
         />
-        <button onClick={handleCreate} className="bg-blue-600 text-white px-4 py-2 rounded">
+
+        <button
+          onClick={handleCreate}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded transition duration-200"
+        >
           ➕ Thêm lịch
         </button>
       </div>
 
-      {/* Table lịch làm việc */}
-      <table className="min-w-full text-sm bg-white shadow rounded">
-        <thead>
-          <tr>
-            <th>Mã lịch</th>
-            <th>Mã ca</th>
-            <th>Ngày</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((row) => (
-            <tr key={row.maLichLV} className="border-t">
-              <td>{row.maLichLV}</td>
-              <td>{row.maCa}</td>
-              <td>{row.ngayLamViec}</td>
-              <td className="space-x-2">
-                <button
-                  onClick={() => handleUpdate(row.maLichLV)}
-                  className="text-green-600 hover:underline"
-                >
-                  Sửa
-                </button>
-                <button
-                  onClick={() => handleDelete(row.maLichLV)}
-                  className="text-red-600 hover:underline"
-                >
-                  Xoá
-                </button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm bg-white shadow rounded-xl overflow-hidden">
+          <thead className="bg-gray-100 text-left text-gray-700">
+            <tr>
+              <th className="px-4 py-2">Mã lịch</th>
+              <th className="px-4 py-2">Mã ca</th>
+              <th className="px-4 py-2">Ngày</th>
+              <th className="px-4 py-2">Thao tác</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {list.map((row) => (
+              <tr key={row.maLichLV} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2">{row.maLichLV}</td>
+                <td className="px-4 py-2">{row.maCa}</td>
+                <td className="px-4 py-2">{row.ngayLamViec?.split("T")[0]}</td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={() => handleDelete(row.maLichLV)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Xoá
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

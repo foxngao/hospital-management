@@ -1,5 +1,5 @@
 // File: src/pages/admin/ManageHoSoBenhAn.jsx
-// Admin chỉ xem + xoá, không được tạo HSBA – dotKhamBenh auto giờ Việt Nam
+// Xử lý giờ Việt Nam chính xác khi tạo HSBA và khi hiển thị
 
 import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosClient";
@@ -11,9 +11,10 @@ function ManageHoSoBenhAn() {
   const token = localStorage.getItem("token");
   const isAdmin = localStorage.getItem("role") === "ADMIN";
 
+  // ✅ Tạo giờ chuẩn giờ Việt Nam cho input datetime-local
   const getVNDateTimeLocal = () => {
     const now = new Date();
-    now.setHours(now.getHours() + 7);
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     return now.toISOString().slice(0, 16);
   };
 
@@ -145,7 +146,17 @@ function ManageHoSoBenhAn() {
             <tr key={row.maHSBA} className="border-b">
               <td className="p-2">{row.maHSBA}</td>
               <td className="p-2">{row.BenhNhan?.hoTen || row.maBN}</td>
-              <td className="p-2">{row.dotKhamBenh}</td>
+              <td className="p-2">
+                {new Date(row.dotKhamBenh).toLocaleString("vi-VN", {
+                  timeZone: "Asia/Ho_Chi_Minh", // ✅ giờ Việt Nam
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                })}
+              </td>
               <td className="p-2">{row.lichSuBenh}</td>
               <td className="p-2">{row.ghiChu || "-"}</td>
               <td className="p-2 space-x-2">

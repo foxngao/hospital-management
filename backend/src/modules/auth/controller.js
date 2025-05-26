@@ -32,7 +32,7 @@ exports.register = async (req, res) => {
       trangThai: true,
     });
 
-    // ✅ Tự động thêm vào bảng BenhNhan
+    // ✅ Tự động thêm vào bảng BenhNhan nếu là bệnh nhân
     if (maNhom === "BENHNHAN") {
       await BenhNhan.create({
         maBN: maTK,
@@ -51,7 +51,7 @@ exports.register = async (req, res) => {
 
 /**
  * Đăng nhập hệ thống
- * Trả về token + thông tin người dùng (gồm loaiNS, maBN nếu là bệnh nhân)
+ * Trả về token + thông tin người dùng (gồm maBS, maBN nếu có)
  */
 exports.login = async (req, res) => {
   const errors = validationResult(req);
@@ -92,8 +92,14 @@ exports.login = async (req, res) => {
     let maBN = null;
     if (user.maNhom === "BENHNHAN") {
       const benhNhan = await BenhNhan.findOne({ where: { maTK: user.maTK } });
-      console.log("🟡 Debug BenhNhan:", benhNhan); // LOG KIỂM TRA
       maBN = benhNhan?.maBN || null;
+    }
+
+    // ✅ Lấy maBS nếu là bác sĩ
+    let maBS = null;
+    if (user.maNhom === "BACSI") {
+      const bacSi = await BacSi.findOne({ where: { maTK: user.maTK } });
+      maBS = bacSi?.maBS || null;
     }
 
     res.status(200).json({
@@ -106,7 +112,8 @@ exports.login = async (req, res) => {
         maNhom: user.maNhom,
         tenNhom: nhomQuyen?.tenNhom || "Không xác định",
         loaiNS,
-        maBN, // ✅ Trả về cho frontend
+        maBN,
+        maBS, // ✅ Gửi xuống frontend
       },
     });
   } catch (error) {

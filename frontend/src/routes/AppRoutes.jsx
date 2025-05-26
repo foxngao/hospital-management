@@ -37,6 +37,9 @@ import QuanLyNhomThuoc from "../pages/admin/thuoc/QuanLyNhomThuoc";//  import qu
 import QuanLyDonViTinh from "../pages/admin/thuoc/QuanLyDonViTinh";//  import quản lý đơn vị tính thuốc
 import TroLyBacSiPage from "../pages/admin/nhansu/TroLyBacSiPage";  //  import quản lý trợ lý bác sĩ
 import ThongKeHoaDonPage from "../pages/admin/thongke/ThongKeHoaDonPage"; //  import quản lý thống kê hóa đơn
+import ThongKeLichLamViecPage from "../pages/admin/thongke/ThongKeLichLamViecPage";//  import quản lý thống kê lịch làm việc
+import ThongKeLichKhamPage from "../pages/admin/thongke/ThongKeLichKhamPage";//  import quản lý thống kê lịch khám bệnh
+
 //--------------------------------------------------------------------------------
 import QuanLyYeuCauXNPage from "../pages/bacsi/xetnghiem/QuanLyYeuCauXNPage";//  import quản lý yêu cầu xét nghiệm
 import PhieuXetNghiemPage from "../pages/bacsi/xetnghiem/PhieuXetNghiemPage";//  import quản lý phiếu xét nghiệm
@@ -97,6 +100,9 @@ function AppRoutes() {
           <Route path="thongke" element={<ThongKeHoaDonPage />} />
           <Route path="nhansu/troly" element={<TroLyBacSiPage />} />
           <Route path="nhansu/catruc" element={<QuanLyCaTrucPage />} />
+          <Route path="thongke/lichlamviec" element={<ThongKeLichLamViecPage />} />
+          <Route path="thongke/lickham" element={<ThongKeLichKhamPage />} />
+
 
           {/* Thêm các route khác nếu cần */}         
         </Route>

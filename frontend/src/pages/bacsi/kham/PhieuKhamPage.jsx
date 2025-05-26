@@ -6,7 +6,6 @@ import {
   deletePhieuKham,
 } from "../../../services/kham/phieukhamService";
 import axios from "../../../api/axiosClient";
-
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -90,57 +89,109 @@ const PhieuKhamPage = () => {
   return (
     <div className="p-4 space-y-6">
       <h2 className="text-xl font-bold text-blue-700">📋 Quản lý phiếu khám bệnh</h2>
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-4 shadow rounded">
-        <select name="maHSBA" value={form.maHSBA} onChange={handleChange} className="input">
+
+      {/* Form nhập */}
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-4 shadow rounded-lg">
+        <select
+          name="maHSBA"
+          value={form.maHSBA}
+          onChange={handleChange}
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
           <option value="">-- Chọn hồ sơ --</option>
           {hosos.map((h) => (
             <option key={h.maHSBA} value={h.maHSBA}>{h.maHSBA}</option>
           ))}
         </select>
-        <select name="maBN" value={form.maBN} onChange={handleChange} className="input">
+
+        <select
+          name="maBN"
+          value={form.maBN}
+          onChange={handleChange}
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
           <option value="">-- Chọn bệnh nhân --</option>
           {benhnhans.map((bn) => (
             <option key={bn.maBN} value={bn.maBN}>{bn.hoTen}</option>
           ))}
         </select>
-        <input name="trieuChung" value={form.trieuChung} onChange={handleChange} placeholder="Triệu chứng" className="input" />
-        <input name="chuanDoan" value={form.chuanDoan} onChange={handleChange} placeholder="Chẩn đoán" className="input" />
-        <input name="loiDan" value={form.loiDan} onChange={handleChange} placeholder="Lời dặn" className="input" />
-        <button onClick={handleCreate} className="bg-blue-600 text-white px-4 py-2 rounded">➕ Lưu</button>
+
+        <input
+          name="trieuChung"
+          value={form.trieuChung}
+          onChange={handleChange}
+          placeholder="Triệu chứng"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <input
+          name="chuanDoan"
+          value={form.chuanDoan}
+          onChange={handleChange}
+          placeholder="Chẩn đoán"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <input
+          name="loiDan"
+          value={form.loiDan}
+          onChange={handleChange}
+          placeholder="Lời dặn"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+
+        <button
+          onClick={handleCreate}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow"
+        >
+          ➕ Lưu
+        </button>
       </div>
-      <table className="min-w-full text-sm bg-white shadow rounded">
-        <thead>
-          <tr>
-            <th>Mã PK</th>
-            <th>HSBA</th>
-            <th>Bệnh nhân</th>
-            <th>Triệu chứng</th>
-            <th>Chẩn đoán</th>
-            <th>Lời dặn</th>
-            <th>Trạng thái</th>
-            <th>Ngày</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((p) => (
-            <tr key={p.maPK} className="border-t">
-              <td>{p.maPK}</td>
-              <td>{p.maHSBA}</td>
-              <td>{p.maBN}</td>
-              <td>{p.trieuChung}</td>
-              <td>{p.chuanDoan}</td>
-              <td>{p.loiDan}</td>
-              <td>{p.trangThai}</td>
-              <td>{dayjs(p.ngayKham).format("YYYY-MM-DD HH:mm:ss")}</td>
-              <td className="space-x-2">
-                <button onClick={() => handleUpdate(p.maPK)} className="text-green-600 hover:underline">Sửa</button>
-                <button onClick={() => handleDelete(p.maPK)} className="text-red-600 hover:underline">Xoá</button>
-              </td>
+
+      {/* Danh sách */}
+      <div className="overflow-auto bg-white shadow rounded-lg">
+        <table className="min-w-full text-sm table-auto">
+          <thead className="bg-gray-100 text-left">
+            <tr>
+              <th className="px-4 py-2">Mã PK</th>
+              <th className="px-4 py-2">HSBA</th>
+              <th className="px-4 py-2">Bệnh nhân</th>
+              <th className="px-4 py-2">Triệu chứng</th>
+              <th className="px-4 py-2">Chẩn đoán</th>
+              <th className="px-4 py-2">Lời dặn</th>
+              <th className="px-4 py-2">Trạng thái</th>
+              <th className="px-4 py-2">Ngày</th>
+              <th className="px-4 py-2 text-center">Hành động</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {list.map((p) => (
+              <tr key={p.maPK} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2">{p.maPK}</td>
+                <td className="px-4 py-2">{p.maHSBA}</td>
+                <td className="px-4 py-2">{p.maBN}</td>
+                <td className="px-4 py-2">{p.trieuChung}</td>
+                <td className="px-4 py-2">{p.chuanDoan}</td>
+                <td className="px-4 py-2">{p.loiDan}</td>
+                <td className="px-4 py-2">{p.trangThai}</td>
+                <td className="px-4 py-2">{dayjs(p.ngayKham).format("YYYY-MM-DD HH:mm:ss")}</td>
+                <td className="px-4 py-2 space-x-2 text-center">
+                  <button
+                    onClick={() => handleUpdate(p.maPK)}
+                    className="text-green-600 hover:underline"
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p.maPK)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Xoá
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

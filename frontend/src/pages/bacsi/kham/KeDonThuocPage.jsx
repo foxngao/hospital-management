@@ -9,7 +9,7 @@ import { getBacSiByTK } from "../../../services/bacsi/bacsiService";
 
 const KeDonThuocPage = () => {
   const [thuocs, setThuocs] = useState([]);
-  const [maDT, setMaDT] = useState(null); // Mã đơn thuốc đã tạo
+  const [maDT, setMaDT] = useState(null);
   const [dsChiTiet, setDsChiTiet] = useState([]);
   const [formDon, setFormDon] = useState({
     maHSBA: "",
@@ -97,42 +97,47 @@ const KeDonThuocPage = () => {
   };
 
   return (
-    <div className="p-4 space-y-6">
-      <h2 className="text-xl font-bold text-blue-700">💊 Kê đơn thuốc</h2>
+    <div className="p-6 space-y-8">
+      <h1 className="text-2xl font-bold text-blue-700">💊 Kê đơn thuốc</h1>
 
-      {/* Form tạo đơn thuốc */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded shadow">
+      {/* Tạo đơn thuốc */}
+      <div className="bg-white p-4 rounded shadow-md grid grid-cols-1 md:grid-cols-4 gap-4">
         <input
           name="maHSBA"
           value={formDon.maHSBA}
           onChange={handleChangeDon}
           placeholder="Mã hồ sơ bệnh án"
-          className="input border p-2 rounded"
+          className="border border-gray-300 p-2 rounded"
         />
         <input
           name="maBS"
           value={formDon.maBS}
           onChange={handleChangeDon}
+          readOnly
           placeholder="Mã bác sĩ"
-          className="input border p-2 rounded"
-          readOnly // vì đã tự động gán
+          className="border border-gray-300 p-2 rounded bg-gray-100"
         />
-        <button onClick={handleCreateDon} className="bg-green-600 text-white px-4 py-2 rounded">
+        <button
+          onClick={handleCreateDon}
+          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded"
+        >
           ➕ Tạo đơn thuốc
         </button>
         {maDT && (
-          <div className="text-green-700 font-semibold pt-2">Mã đơn: {maDT}</div>
+          <div className="text-green-700 font-semibold flex items-center">
+            Mã đơn: {maDT}
+          </div>
         )}
       </div>
 
       {/* Thêm thuốc vào đơn */}
       {maDT && (
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-4 rounded shadow">
+        <div className="bg-white p-4 rounded shadow-md grid grid-cols-1 md:grid-cols-6 gap-4">
           <select
             name="maThuoc"
             value={formChiTiet.maThuoc}
             onChange={handleChangeChiTiet}
-            className="border p-2 rounded"
+            className="border border-gray-300 p-2 rounded"
           >
             <option value="">-- Chọn thuốc --</option>
             {thuocs.map((t) => (
@@ -146,44 +151,48 @@ const KeDonThuocPage = () => {
             value={formChiTiet.soLuong}
             onChange={handleChangeChiTiet}
             placeholder="Số lượng"
-            className="border p-2 rounded"
+            className="border border-gray-300 p-2 rounded"
           />
           <input
             name="lieuDung"
             value={formChiTiet.lieuDung}
             onChange={handleChangeChiTiet}
             placeholder="Liều dùng"
-            className="border p-2 rounded"
+            className="border border-gray-300 p-2 rounded"
           />
-          <button
-            onClick={handleAddThuoc}
-            className="bg-blue-600 text-white px-4 py-2 rounded col-span-2"
-          >
-            ➕ Thêm vào đơn
-          </button>
+          <div className="md:col-span-2">
+            <button
+              onClick={handleAddThuoc}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
+            >
+              ➕ Thêm vào đơn
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Danh sách thuốc đã thêm */}
+      {/* Chi tiết đơn thuốc */}
       {dsChiTiet.length > 0 && (
-        <table className="min-w-full text-sm bg-white shadow rounded">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2">Mã thuốc</th>
-              <th className="p-2">Số lượng</th>
-              <th className="p-2">Liều dùng</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dsChiTiet.map((ct) => (
-              <tr key={ct.maCTDT} className="border-t">
-                <td className="p-2">{ct.maThuoc}</td>
-                <td className="p-2">{ct.soLuong}</td>
-                <td className="p-2">{ct.lieuDung}</td>
+        <div className="bg-white rounded shadow-md overflow-x-auto">
+          <table className="min-w-full text-sm table-auto">
+            <thead className="bg-gray-100 text-left">
+              <tr>
+                <th className="px-4 py-2">Mã thuốc</th>
+                <th className="px-4 py-2">Số lượng</th>
+                <th className="px-4 py-2">Liều dùng</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {dsChiTiet.map((ct) => (
+                <tr key={ct.maCTDT} className="border-t">
+                  <td className="px-4 py-2">{ct.maThuoc}</td>
+                  <td className="px-4 py-2">{ct.soLuong}</td>
+                  <td className="px-4 py-2">{ct.lieuDung}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

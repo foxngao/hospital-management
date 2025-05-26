@@ -27,6 +27,11 @@ function LoginPage() {
           localStorage.setItem("maBN", user.maBN);
         }
 
+        // ✅ Lưu maBS nếu là bác sĩ
+        if (user.maNhom === "BACSI") {
+          localStorage.setItem("maBS", user.maBS); // 🔥 DÒNG QUAN TRỌNG
+        }
+
         toast.success("Đăng nhập thành công!");
 
         // ✅ Điều hướng chính xác theo vai trò

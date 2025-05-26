@@ -2,8 +2,8 @@ import React from "react";
 
 const HoaDonList = ({ data, onChiTietClick }) => {
   return (
-    <section>
-      <h3 className="font-semibold mb-2">📋 Danh sách hóa đơn</h3>
+    <section className="space-y-4">
+      <h3 className="font-semibold text-blue-700 text-lg">📋 Danh sách hóa đơn</h3>
       <table className="min-w-full text-sm border rounded shadow bg-white">
         <thead className="bg-blue-50 text-left">
           <tr>
@@ -28,7 +28,7 @@ const HoaDonList = ({ data, onChiTietClick }) => {
               <td>
                 <button
                   onClick={() => onChiTietClick(hd.maHD)}
-                  className="text-blue-600 underline"
+                  className="text-blue-600 hover:underline"
                 >
                   Chi tiết
                 </button>

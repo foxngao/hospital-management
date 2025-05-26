@@ -22,18 +22,39 @@ const ThanhToanForm = ({ onSuccess }) => {
   };
 
   return (
-    <section>
-      <h3 className="font-semibold mb-2">💳 Ghi nhận thanh toán</h3>
+    <section className="space-y-4">
+      <h3 className="font-semibold text-blue-700 text-lg">💳 Ghi nhận thanh toán</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <input name="maHD" value={form.maHD} onChange={handleChange} placeholder="Mã hóa đơn" className="input" />
-        <input name="soTien" type="number" value={form.soTien} onChange={handleChange} placeholder="Số tiền" className="input" />
-        <select name="phuongThuc" value={form.phuongThuc} onChange={handleChange} className="input">
+        <input
+          name="maHD"
+          value={form.maHD}
+          onChange={handleChange}
+          placeholder="Mã hóa đơn"
+          className="border px-2 py-1 rounded"
+        />
+        <input
+          name="soTien"
+          type="number"
+          value={form.soTien}
+          onChange={handleChange}
+          placeholder="Số tiền"
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          name="phuongThuc"
+          value={form.phuongThuc}
+          onChange={handleChange}
+          className="border px-2 py-1 rounded"
+        >
           <option value="">-- Phương thức --</option>
           <option>Tiền mặt</option>
           <option>Chuyển khoản</option>
         </select>
       </div>
-      <button onClick={handleThanhToan} className="mt-3 bg-green-600 text-white px-4 py-2 rounded">
+      <button
+        onClick={handleThanhToan}
+        className="mt-3 bg-green-600 text-white px-4 py-2 rounded"
+      >
         💵 Ghi nhận
       </button>
     </section>

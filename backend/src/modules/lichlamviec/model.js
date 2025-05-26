@@ -6,23 +6,28 @@ const sequelize = require("../../config/sequelize");
 const LichLamViec = sequelize.define("LichLamViec", {
   maLichLV: {
     type: DataTypes.STRING,
-    primaryKey: true
+    primaryKey: true,
+  },
+  maBS: {
+    type: DataTypes.STRING,
+    allowNull: false, //  bác sĩ tạo lịch
   },
   maNS: {
     type: DataTypes.STRING,
-    allowNull: false     // Nhân sự y tế (bác sĩ)
+    allowNull: false, // Nhân viên được phân công
   },
   maCa: {
     type: DataTypes.STRING,
-    allowNull: false     // Ca làm việc
+    allowNull: false,
   },
   ngayLamViec: {
     type: DataTypes.DATE,
-    allowNull: false     // Ngày làm việc
+    allowNull: false,
   }
 }, {
   tableName: "LichLamViec",
-  timestamps: false
+  timestamps: false,
 });
+
 
 module.exports = { LichLamViec };

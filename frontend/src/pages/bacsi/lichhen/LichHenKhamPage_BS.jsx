@@ -4,7 +4,7 @@ import LichTable from "../../../components/lichkham/LichTable";
 import {
   getAllLichHen,
   updateLichHen,
-  deleteLichHen
+  deleteLichHen,
 } from "../../../services/lichkham_BS/lichkhamService";
 import axios from "../../../api/axiosClient";
 
@@ -16,7 +16,7 @@ const LichHenKhamPage = () => {
 
   useEffect(() => {
     loadData();
-    axios.get("/bacsi").then(res => setBacSiList(res.data.data));
+    axios.get("/bacsi").then((res) => setBacSiList(res.data.data));
   }, []);
 
   const loadData = async () => {
@@ -39,14 +39,15 @@ const LichHenKhamPage = () => {
   });
 
   const startEdit = (lich) => setEditForm({ ...lich });
-  const handleEditChange = (e) => setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  const handleEditChange = (e) =>
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
 
   const saveEdit = async () => {
     await updateLichHen(editForm.maLich, {
       phong: editForm.phong,
       ghiChu: editForm.ghiChu,
       ngayKham: editForm.ngayKham,
-      gioKham: editForm.gioKham
+      gioKham: editForm.gioKham,
     });
     alert("✅ Cập nhật thành công");
     setEditForm({});
@@ -62,18 +63,32 @@ const LichHenKhamPage = () => {
   };
 
   return (
-    <div className="space-y-6 p-4">
-      <h2 className="text-xl font-bold text-blue-700">📅 Lịch hẹn khám bệnh</h2>
-      <FilterBar filter={filter} bacSiList={bacSiList} onChange={handleFilterChange} />
-      <LichTable
-        data={filteredList}
-        editForm={editForm}
-        onEditStart={startEdit}
-        onEditChange={handleEditChange}
-        onSaveEdit={saveEdit}
-        onCancelEdit={cancelEdit}
-        onDelete={handleDelete}
-      />
+    <div className="p-4 space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-blue-700 flex items-center gap-2">
+          📅 Lịch hẹn khám bệnh
+        </h2>
+      </div>
+
+      <div className="bg-white shadow rounded-xl p-4">
+        <FilterBar
+          filter={filter}
+          bacSiList={bacSiList}
+          onChange={handleFilterChange}
+        />
+      </div>
+
+      <div className="bg-white shadow rounded-xl p-4">
+        <LichTable
+          data={filteredList}
+          editForm={editForm}
+          onEditStart={startEdit}
+          onEditChange={handleEditChange}
+          onSaveEdit={saveEdit}
+          onCancelEdit={cancelEdit}
+          onDelete={handleDelete}
+        />
+      </div>
     </div>
   );
 };

@@ -2,7 +2,7 @@
 const { v4: uuidv4 } = require("uuid");
 const { LichLamViec } = require("./model");
 
-// Lấy toàn bộ lịch làm việc (ADMIN)
+// ✅ Lấy toàn bộ lịch làm việc (ADMIN)
 exports.getAll = async (req, res) => {
   try {
     const data = await LichLamViec.findAll({ order: [["ngayLamViec", "DESC"]] });
@@ -13,28 +13,52 @@ exports.getAll = async (req, res) => {
   }
 };
 
-// Lấy lịch làm việc theo mã nhân sự (BÁC SĨ)
+// ✅ Lấy lịch làm việc theo mã nhân sự (cũ - vẫn giữ nếu frontend khác dùng)
 exports.getByNhanSu = async (req, res) => {
   try {
     const { maNS } = req.params;
     const data = await LichLamViec.findAll({
       where: { maNS },
-      order: [["ngayLamViec", "DESC"]]
+      order: [["ngayLamViec", "DESC"]],
     });
-    res.json({ message: "Lấy lịch làm việc cá nhân", data });
+    res.json({ message: "Lấy lịch làm việc theo nhân sự", data });
   } catch (err) {
     console.error("❌ Lỗi Sequelize:", err);
-    res.status(500).json({ message: "Lỗi lấy lịch cá nhân", error: err.message });
+    res.status(500).json({ message: "Lỗi lấy lịch nhân sự", error: err.message });
   }
 };
 
-// Tạo mới lịch làm việc
+// ✅ Lấy lịch làm việc theo mã bác sĩ (maBS) – dùng cho frontend hiện tại
+exports.getByBacSi = async (req, res) => {
+  try {
+    const { maBS } = req.params;
+    const data = await LichLamViec.findAll({
+      where: { maBS },
+      order: [["ngayLamViec", "DESC"]],
+    });
+    res.json({ message: "Lấy lịch làm việc theo bác sĩ", data });
+  } catch (err) {
+    console.error("❌ Lỗi Sequelize:", err);
+    res.status(500).json({ message: "Lỗi lấy lịch bác sĩ", error: err.message });
+  }
+};
+
+// ✅ Tạo mới lịch làm việc
 exports.create = async (req, res) => {
   try {
-    const { maNS, maCa, ngayLamViec } = req.body;
+    const { maNS, maCa, ngayLamViec, maBS } = req.body;
     const maLichLV = uuidv4().slice(0, 8).toUpperCase();
 
-    const newData = await LichLamViec.create({ maLichLV, maNS, maCa, ngayLamViec });
+    console.log("📥 Dữ liệu nhận được:", req.body);
+
+    const newData = await LichLamViec.create({
+      maLichLV,
+      maCa,
+      ngayLamViec,
+      maNS,
+      maBS, // BẮT BUỘC phải có
+    });
+
     res.status(201).json({ message: "Tạo lịch làm việc thành công", data: newData });
   } catch (err) {
     console.error("❌ Lỗi Sequelize:", err);
@@ -42,7 +66,7 @@ exports.create = async (req, res) => {
   }
 };
 
-// Cập nhật lịch làm việc
+// ✅ Cập nhật lịch làm việc
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
@@ -59,7 +83,7 @@ exports.update = async (req, res) => {
   }
 };
 
-// Xoá lịch làm việc
+// ✅ Xoá lịch làm việc
 exports.remove = async (req, res) => {
   try {
     const { id } = req.params;

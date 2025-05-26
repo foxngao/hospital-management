@@ -169,7 +169,7 @@ function CreateUserForm({ onSuccess }) {
       )}
 
       <select name="vaiTro" value={form.vaiTro} onChange={handleChange} className="border p-2 w-full rounded">
-        <option value="ADMIN">Admin</option>
+       {/* <option value="ADMIN">Admin</option> */}
         <option value="BACSI">Bác sĩ</option>
         <option value="NHANSU">Nhân viên y tế</option>
         <option value="BENHNHAN">Bệnh nhân</option>

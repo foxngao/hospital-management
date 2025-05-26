@@ -8,9 +8,9 @@ const ModalThemDichVu = ({ maHD, onClose }) => {
 
   useEffect(() => {
     if (form.loaiDichVu === "XetNghiem") {
-      axios.get("/xetnghiem").then(res => setDanhSachDichVu(res.data.data || []));
+      axios.get("/xetnghiem").then((res) => setDanhSachDichVu(res.data.data || []));
     } else if (form.loaiDichVu === "Kham") {
-      axios.get("/kham").then(res => setDanhSachDichVu(res.data.data || []));
+      axios.get("/kham").then((res) => setDanhSachDichVu(res.data.data || []));
     } else {
       setDanhSachDichVu([]);
     }
@@ -26,7 +26,6 @@ const ModalThemDichVu = ({ maHD, onClose }) => {
       alert("❌ Vui lòng chọn loại và mã dịch vụ.");
       return;
     }
-
     await addChiTietHD({ maHD, loaiDichVu: form.loaiDichVu, maDichVu: form.maDichVu });
     alert("✔ Đã thêm dịch vụ vào hóa đơn");
     setForm({});
@@ -37,13 +36,23 @@ const ModalThemDichVu = ({ maHD, onClose }) => {
       <div className="bg-white p-6 rounded-lg w-full max-w-2xl space-y-4 shadow-xl">
         <h3 className="text-blue-700 font-bold text-lg">➕ Thêm dịch vụ vào: {maHD}</h3>
         <div className="grid grid-cols-2 gap-4">
-          <select name="loaiDichVu" value={form.loaiDichVu || ""} onChange={handleChange} className="input">
+          <select
+            name="loaiDichVu"
+            value={form.loaiDichVu || ""}
+            onChange={handleChange}
+            className="border px-2 py-1 rounded"
+          >
             <option value="">-- Loại dịch vụ --</option>
             <option value="XetNghiem">Xét nghiệm</option>
             <option value="Kham">Khám</option>
           </select>
 
-          <select name="maDichVu" value={form.maDichVu || ""} onChange={handleChange} className="input">
+          <select
+            name="maDichVu"
+            value={form.maDichVu || ""}
+            onChange={handleChange}
+            className="border px-2 py-1 rounded"
+          >
             <option value="">-- Mã dịch vụ --</option>
             {danhSachDichVu.map((dv, idx) => (
               <option key={idx} value={dv.maXN || dv.maKham}>

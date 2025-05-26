@@ -23,7 +23,7 @@ const LichHenPage = () => {
   useEffect(() => {
     fetchData();
     fetchOptions();
-    setNowVietnamTime(); // ⏰ Set thời gian thực Việt Nam
+    setNowVietnamTime();
   }, []);
 
   const fetchData = async () => {
@@ -42,10 +42,9 @@ const LichHenPage = () => {
 
   const setNowVietnamTime = () => {
     const now = new Date();
-    now.setHours(now.getHours() + 7); // Chuyển sang UTC+7
-
-    const date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const time = now.toTimeString().slice(0, 5);   // hh:mm
+    now.setHours(now.getHours() + 7);
+    const date = now.toISOString().split("T")[0];
+    const time = now.toTimeString().slice(0, 5);
 
     setForm((prev) => ({
       ...prev,
@@ -54,7 +53,9 @@ const LichHenPage = () => {
     }));
   };
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleCreate = async () => {
     await createLichHen(form);
@@ -65,7 +66,7 @@ const LichHenPage = () => {
       maBN: "",
       maBS: "",
       phong: "",
-      ghiChu: ""
+      ghiChu: "",
     }));
   };
 
@@ -88,62 +89,79 @@ const LichHenPage = () => {
   };
 
   return (
-    <div className="p-4 space-y-6">
-      <h2 className="text-xl font-bold text-blue-700">📅 Quản lý lịch hẹn khám</h2>
+    <div className="p-6 space-y-8">
+      <h2 className="text-2xl font-bold text-blue-700">📅 Quản lý lịch hẹn khám</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-4 rounded shadow">
-        <select name="maBN" value={form.maBN} onChange={handleChange} className="input">
+      {/* Form đặt lịch */}
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-white p-6 rounded-xl shadow">
+        <select name="maBN" value={form.maBN} onChange={handleChange} className="border rounded p-2 col-span-2">
           <option value="">-- Chọn bệnh nhân --</option>
           {benhNhanList.map((bn) => (
             <option key={bn.maBN} value={bn.maBN}>{bn.hoTen}</option>
           ))}
         </select>
-        <select name="maBS" value={form.maBS} onChange={handleChange} className="input">
+        <select name="maBS" value={form.maBS} onChange={handleChange} className="border rounded p-2 col-span-2">
           <option value="">-- Chọn bác sĩ --</option>
           {bacSiList.map((bs) => (
             <option key={bs.maBS} value={bs.maBS}>{bs.hoTen}</option>
           ))}
         </select>
-        <input type="date" name="ngayKham" value={form.ngayKham} onChange={handleChange} className="input" />
-        <input type="time" name="gioKham" value={form.gioKham} onChange={handleChange} className="input" />
-        <input name="phong" placeholder="Phòng" value={form.phong} onChange={handleChange} className="input" />
-        <textarea name="ghiChu" placeholder="Ghi chú" value={form.ghiChu} onChange={handleChange} className="input col-span-2" />
-        <button onClick={handleCreate} className="bg-blue-600 text-white px-4 py-2 rounded col-span-2">
+        <input type="date" name="ngayKham" value={form.ngayKham} onChange={handleChange} className="border rounded p-2" />
+        <input type="time" name="gioKham" value={form.gioKham} onChange={handleChange} className="border rounded p-2" />
+        <input name="phong" placeholder="Phòng" value={form.phong} onChange={handleChange} className="border rounded p-2 col-span-2" />
+        <textarea name="ghiChu" placeholder="Ghi chú" value={form.ghiChu} onChange={handleChange} className="border rounded p-2 col-span-6 h-20" />
+        <button
+          onClick={handleCreate}
+          className="bg-blue-600 text-white rounded p-2 font-semibold col-span-6 hover:bg-blue-700"
+        >
           ➕ Đặt lịch
         </button>
       </div>
 
-      <table className="min-w-full text-sm bg-white shadow rounded">
-        <thead>
-          <tr>
-            <th>Mã lịch</th>
-            <th>Bệnh nhân</th>
-            <th>Bác sĩ</th>
-            <th>Ngày</th>
-            <th>Giờ</th>
-            <th>Phòng</th>
-            <th>Ghi chú</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((lich) => (
-            <tr key={lich.maLich} className="border-t">
-              <td>{lich.maLich}</td>
-              <td>{lich.BenhNhan?.hoTen}</td>
-              <td>{lich.BacSi?.hoTen}</td>
-              <td>{lich.ngayKham}</td>
-              <td>{lich.gioKham}</td>
-              <td>{lich.phong}</td>
-              <td>{lich.ghiChu}</td>
-              <td>
-                <button onClick={() => handleUpdate(lich.maLich)} className="text-green-600 hover:underline">Sửa</button>
-                <button onClick={() => handleDelete(lich.maLich)} className="text-red-600 hover:underline">Xoá</button>
-              </td>
+      {/* Danh sách lịch hẹn */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white rounded-xl shadow text-sm text-left">
+          <thead className="bg-gray-100 text-gray-700 font-semibold">
+            <tr>
+              <th className="p-3">Mã lịch</th>
+              <th className="p-3">Bệnh nhân</th>
+              <th className="p-3">Bác sĩ</th>
+              <th className="p-3">Ngày</th>
+              <th className="p-3">Giờ</th>
+              <th className="p-3">Phòng</th>
+              <th className="p-3">Ghi chú</th>
+              <th className="p-3">Thao tác</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {list.map((lich) => (
+              <tr key={lich.maLich} className="border-t">
+                <td className="p-3">{lich.maLich}</td>
+                <td className="p-3">{lich.BenhNhan?.hoTen}</td>
+                <td className="p-3">{lich.BacSi?.hoTen}</td>
+                <td className="p-3">{lich.ngayKham}</td>
+                <td className="p-3">{lich.gioKham}</td>
+                <td className="p-3">{lich.phong}</td>
+                <td className="p-3">{lich.ghiChu}</td>
+                <td className="p-3 space-x-2">
+                  <button
+                    onClick={() => handleUpdate(lich.maLich)}
+                    className="text-green-600 hover:underline"
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    onClick={() => handleDelete(lich.maLich)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Xoá
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
