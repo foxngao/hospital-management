@@ -7,105 +7,105 @@ function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gray-100">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-gray-100 to-blue-50 transition-all duration-500">
       {/* Nút mở menu trên mobile */}
-      <div className="flex md:hidden justify-between items-center p-4 bg-gray-900 text-white">
+      <div className="flex md:hidden justify-between items-center px-4 py-3 bg-gray-900 text-white shadow-md">
         <h2 className="text-xl font-bold">🛠️ Admin</h2>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-white text-2xl"
+          className="text-white text-2xl focus:outline-none"
         >
           ☰
         </button>
       </div>
 
-      {/* Sidebar */}
+      {/* Sidebar trái */}
       <aside
-        className={`bg-gray-900 text-white w-64 flex-shrink-0 shadow-lg transform transition-transform duration-300 md:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:flex md:flex-col md:static absolute z-50 h-full`}
+        className={`bg-gray-900 text-white w-64 transform md:translate-x-0 transition-all duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:static absolute z-50 h-full shadow-xl md:flex md:flex-col`}
       >
         <div className="p-4 space-y-6 overflow-y-auto flex-1">
-          <h2 className="text-xl font-bold hidden md:block">🛠️ Admin Menu</h2>
+          <h2 className="text-2xl font-bold text-white hidden md:block">🛠️ Admin Menu</h2>
 
-          {/* Tài khoản */}
-          <div>
-            <div className="text-sm font-semibold text-gray-400 uppercase mb-1">Tài khoản & phân quyền</div>
-            <nav className="space-y-1">
-              <a href="/admin/taikhoan" className="block p-2 rounded hover:bg-gray-700">📋 Danh sách tài khoản</a>
-              <a href="/admin/taikhoan/tao-moi" className="block p-2 rounded hover:bg-gray-700">👤 Tạo tài khoản</a>
-              <a href="/admin/taikhoan/phan-quyen" className="block p-2 rounded hover:bg-gray-700">🛡️ Phân quyền</a>
-            </nav>
-          </div>
+          {/** Khối menu */}
+          {renderMenuBlock("Tài khoản & phân quyền", [
+            ["📋 Danh sách tài khoản", "/admin/taikhoan"],
+            ["👤 Tạo tài khoản", "/admin/taikhoan/tao-moi"],
+            ["🛡️ Phân quyền", "/admin/taikhoan/phan-quyen"],
+          ])}
 
-          {/* Nhân sự */}
-          <div>
-            <div className="text-sm font-semibold text-gray-400 uppercase mb-1">Nhân sự</div>
-            <nav className="space-y-1">
-              <a href="/admin/nhansu/troly" className="block p-2 rounded hover:bg-gray-700">👥 Trợ lý bác sĩ</a>
-              <a href="/admin/nhansu" className="block p-2 rounded hover:bg-gray-700">🧑‍🔬 Nhân viên y tế</a>
-              <a href="/admin/bacsi" className="block p-2 rounded hover:bg-gray-700">🧑‍⚕️ Bác sĩ</a>
-              <a href="/admin/nhansu/catruc" className="block p-2 rounded hover:bg-gray-700">🕐 Quản lý ca trực</a>
-            </nav>
-          </div>
+          {renderMenuBlock("Nhân sự", [
+            ["👥 Trợ lý bác sĩ", "/admin/nhansu/troly"],
+            ["🧑‍🔬 Nhân viên y tế", "/admin/nhansu"],
+            ["🧑‍⚕️ Bác sĩ", "/admin/bacsi"],
+            ["🕐 Quản lý ca trực", "/admin/nhansu/catruc"],
+          ])}
 
-          {/* Chuyên môn */}
-          <div>
-            <div className="text-sm font-semibold text-gray-400 uppercase mb-1">Chuyên môn</div>
-            <nav className="space-y-1">
-              <a href="/admin/khoa" className="block p-2 rounded hover:bg-gray-700">🏥 Quản lý khoa</a>
-              <a href="/admin/lichkham" className="block p-2 rounded hover:bg-gray-700">📅 Lịch khám</a>
-              <a href="/admin/xetnghiem" className="block p-2 rounded hover:bg-gray-700">🧪 Xét nghiệm</a>
-              <a href="/admin/loaixetnghiem" className="block p-2 rounded hover:bg-gray-700">📄 Loại xét nghiệm</a>
-            </nav>
-          </div>
+          {renderMenuBlock("Chuyên môn", [
+            ["🏥 Quản lý khoa", "/admin/khoa"],
+            ["📅 Lịch khám", "/admin/lichkham"],
+            ["🧪 Xét nghiệm", "/admin/xetnghiem"],
+            ["📄 Loại xét nghiệm", "/admin/loaixetnghiem"],
+          ])}
 
-          {/* Bệnh nhân */}
-          <div>
-            <div className="text-sm font-semibold text-gray-400 uppercase mb-1">Bệnh nhân</div>
-            <nav className="space-y-1">
-              <a href="/admin/benhnhan" className="block p-2 rounded hover:bg-gray-700">🧑‍🦽 Quản lý bệnh nhân</a>
-              <a href="/admin/hosobenhan" className="block p-2 rounded hover:bg-gray-700">📋 Hồ sơ bệnh án</a>
-            </nav>
-          </div>
+          {renderMenuBlock("Bệnh nhân", [
+            ["🧑‍🦽 Quản lý bệnh nhân", "/admin/benhnhan"],
+            ["📋 Hồ sơ bệnh án", "/admin/hosobenhan"],
+          ])}
 
-          {/* Thuốc */}
-          <div>
-            <div className="text-sm font-semibold text-gray-400 uppercase mb-1">Thuốc & đơn vị</div>
-            <nav className="space-y-1">
-              <a href="/admin/thuoc" className="block p-2 rounded hover:bg-gray-700">💊 Quản lý thuốc</a>
-              <a href="/admin/nhomthuoc" className="block p-2 rounded hover:bg-gray-700">📦 Nhóm thuốc</a>
-              <a href="/admin/donvitinh" className="block p-2 rounded hover:bg-gray-700">📐 Đơn vị tính</a>
-            </nav>
-          </div>
+          {renderMenuBlock("Thuốc & đơn vị", [
+            ["💊 Quản lý thuốc", "/admin/thuoc"],
+            ["📦 Nhóm thuốc", "/admin/nhomthuoc"],
+            ["📐 Đơn vị tính", "/admin/donvitinh"],
+          ])}
 
-          {/* Hóa đơn & Thống kê */}
-          <div>
-            <div className="text-sm font-semibold text-gray-400 uppercase mb-1">Hóa đơn & Thống kê</div>
-            <nav className="space-y-1">
-              <a href="/admin/thongke" className="block p-2 rounded hover:bg-gray-700">📊 Thống kê hóa đơn</a>
-              <a href="/admin/thongke/lichlamviec" className="block p-2 rounded hover:bg-gray-700">📈 Lịch làm việc</a>
-              <a href="/admin/thongke/lickham" className="block p-2 rounded hover:bg-gray-700">📅 Lịch khám</a>
-            </nav>
-          </div>
+          {renderMenuBlock("Hóa đơn & Thống kê", [
+            ["📊 Thống kê hóa đơn", "/admin/thongke"],
+            ["📈 Lịch làm việc", "/admin/thongke/lichlamviec"],
+            ["📅 Lịch khám", "/admin/thongke/lickham"],
+          ])}
         </div>
 
         {/* Nút đăng xuất */}
         <div className="p-4 border-t border-gray-700">
           <button
             onClick={logout}
-            className="w-full bg-red-600 hover:bg-red-700 p-2 rounded text-left font-semibold"
+            className="w-full bg-red-600 hover:bg-red-700 p-2 rounded-lg text-left font-semibold transition duration-200"
           >
             🔓 Đăng xuất
           </button>
         </div>
       </aside>
 
-      {/* Nội dung */}
-      <main className="flex-1 p-4 overflow-y-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+      {/* Nội dung chính */}
+      <main className="flex-1 p-6 overflow-y-auto transition-all">
+        <h1 className="text-3xl font-extrabold text-blue-800 mb-6 drop-shadow">
+          🎯 Admin Dashboard
+        </h1>
         <Outlet />
       </main>
+    </div>
+  );
+}
+
+function renderMenuBlock(title, items) {
+  return (
+    <div>
+      <div className="text-sm font-bold text-blue-300 uppercase mb-2 tracking-widest">
+        {title}
+      </div>
+      <nav className="space-y-1">
+        {items.map(([label, href]) => (
+          <a
+            key={href}
+            href={href}
+            className="block px-3 py-2 rounded-lg hover:bg-blue-600 hover:translate-x-1 transform transition-all duration-200 bg-opacity-20 hover:bg-opacity-30"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
     </div>
   );
 }
