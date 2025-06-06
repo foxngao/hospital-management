@@ -34,11 +34,24 @@ module.exports = (sequelize) => {
     timestamps: false,
   });
 
+  //  Cập nhật đúng alias cho Sequelize
   PhieuXetNghiem.associate = (models) => {
-    PhieuXetNghiem.belongsTo(models.YeuCauXetNghiem, { foreignKey: "maYeuCau" });
-    PhieuXetNghiem.belongsTo(models.XetNghiem, { foreignKey: "maXN" });
-    PhieuXetNghiem.belongsTo(models.NhanSuYTe, { foreignKey: "maNS" });
-    PhieuXetNghiem.belongsTo(models.HoSoBenhAn, { foreignKey: "maHSBA" });
+    PhieuXetNghiem.belongsTo(models.YeuCauXetNghiem, {
+      foreignKey: "maYeuCau",
+      as: "YeuCau",
+    });
+    PhieuXetNghiem.belongsTo(models.XetNghiem, {
+      foreignKey: "maXN",
+      as: "XetNghiem",
+    });
+    PhieuXetNghiem.belongsTo(models.NhanSuYTe, {
+      foreignKey: "maNS",
+      as: "NhanSuYTe",
+    });
+    PhieuXetNghiem.belongsTo(models.HoSoBenhAn, {
+      foreignKey: "maHSBA",
+      as: "HoSoBenhAn",
+    });
   };
 
   return PhieuXetNghiem;

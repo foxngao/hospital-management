@@ -10,11 +10,11 @@ const LichLamViec = sequelize.define("LichLamViec", {
   },
   maBS: {
     type: DataTypes.STRING,
-    allowNull: false, //  bác sĩ tạo lịch
+    allowNull: true, //  bác sĩ tạo lịch
   },
   maNS: {
     type: DataTypes.STRING,
-    allowNull: false, // Nhân viên được phân công
+    allowNull: true, // Nhân viên được phân công
   },
   maCa: {
     type: DataTypes.STRING,

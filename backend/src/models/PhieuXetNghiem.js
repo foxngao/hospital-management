@@ -1,5 +1,5 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
 
 const PhieuXetNghiem = sequelize.define("PhieuXetNghiem", {
   maPhieuXN: {
@@ -37,23 +37,21 @@ const PhieuXetNghiem = sequelize.define("PhieuXetNghiem", {
 PhieuXetNghiem.associate = (models) => {
   PhieuXetNghiem.belongsTo(models.YeuCauXetNghiem, {
     foreignKey: "maYeuCau",
-    as: "YeuCau"
+    as: "YeuCau" // ✅ thêm alias đúng với frontend
   });
-
   PhieuXetNghiem.belongsTo(models.XetNghiem, {
     foreignKey: "maXN",
     as: "XetNghiem"
   });
-
   PhieuXetNghiem.belongsTo(models.NhanSuYTe, {
     foreignKey: "maNS",
     as: "NhanSuYTe"
   });
-
   PhieuXetNghiem.belongsTo(models.HoSoBenhAn, {
     foreignKey: "maHSBA",
     as: "HoSoBenhAn"
   });
 };
+
 
 module.exports = PhieuXetNghiem;

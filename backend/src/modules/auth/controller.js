@@ -21,8 +21,11 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "Tên đăng nhập đã tồn tại" });
 
     const hashedPassword = await bcrypt.hash(matKhau, 10);
-    const maTK = uuidv4().slice(0, 8).toUpperCase();
+    console.log("🟢 Mã hoá mật khẩu OK");
 
+    const maTK = uuidv4().slice(0, 8).toUpperCase();
+    console.log("🟢 Sinh mã TK:", maTK);
+    
     const newUser = await TaiKhoan.create({
       maTK,
       tenDangNhap,
@@ -31,27 +34,30 @@ exports.register = async (req, res) => {
       maNhom,
       trangThai: true,
     });
+    
+    console.log("🟢 Tạo tài khoản thành công:", newUser?.maTK);
 
-    // ✅ Tự động thêm vào bảng BenhNhan nếu là bệnh nhân
-    if (maNhom === "BENHNHAN") {
-      await BenhNhan.create({
-        maBN: maTK,
-        hoTen: tenDangNhap,
-        email,
-        maTK,
-      });
-    }
+    res.status(201).json({
+      success: true,
+      message: "Đăng ký thành công",
+      token: null,
+      user: {
+        maTK: newUser.maTK,
+        tenDangNhap: newUser.tenDangNhap,
+        email: newUser.email,
+        maNhom: newUser.maNhom
+      }
+    });
 
-    res.status(201).json({ message: "Đăng ký thành công", data: newUser });
   } catch (error) {
-    console.error("❌ Lỗi khi đăng ký:", error);
+    console.error("❌ Lỗi khi đăng ký:", error);  // CHỐT Ở ĐÂY
     res.status(500).json({ message: "Lỗi khi đăng ký", error: error.message });
   }
 };
 
 /**
  * Đăng nhập hệ thống
- * Trả về token + thông tin người dùng (gồm maBS, maBN nếu có)
+ * Trả về token + thông tin người dùng (gồm loaiNS, maBN nếu là bệnh nhân)
  */
 exports.login = async (req, res) => {
   const errors = validationResult(req);
@@ -92,6 +98,7 @@ exports.login = async (req, res) => {
     let maBN = null;
     if (user.maNhom === "BENHNHAN") {
       const benhNhan = await BenhNhan.findOne({ where: { maTK: user.maTK } });
+      console.log("🟡 Debug BenhNhan:", benhNhan); // LOG KIỂM TRA
       maBN = benhNhan?.maBN || null;
     }
 
@@ -120,4 +127,93 @@ exports.login = async (req, res) => {
     console.error("❌ Lỗi khi đăng nhập:", error);
     res.status(500).json({ message: "Lỗi khi đăng nhập", error: error.message });
   }
+};
+
+/**
+ * Lấy thông tin tài khoản từ token
+ */
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const { maTK } = req.user;
+
+    const user = await TaiKhoan.findByPk(maTK);
+    if (!user) return res.status(404).json(null);
+
+    return res.json({
+      maTK: user.maTK,
+      tenDangNhap: user.tenDangNhap,
+      email: user.email,
+      maNhom: user.maNhom,
+    });
+  } catch (err) {
+    console.error("❌ Lỗi khi lấy thông tin user từ token:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+
+
+
+/**
+ * Tạo mã xác thực
+ */
+exports.taoMaXacThuc = (req, res) => {
+  const { maTK } = req.params;
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  maXacThucMap[maTK] = code;
+  res.json({ success: true, message: "Mã xác thực của bạn là: " + code });
+};
+
+/**
+ * Đổi mật khẩu (không cần mã xác thực)
+ */
+exports.doiMatKhau = async (req, res) => {
+  const { maTK, matKhauCu, matKhauMoi } = req.body;
+
+  try {
+    const taiKhoan = await TaiKhoan.findByPk(maTK);
+    if (!taiKhoan)
+      return res.status(404).json({ success: false, message: "Không tìm thấy tài khoản" });
+
+    const match = await bcrypt.compare(matKhauCu, taiKhoan.matKhau);
+    if (!match)
+      return res.status(400).json({ success: false, message: "Mật khẩu cũ không đúng" });
+
+    if (matKhauMoi === matKhauCu) {
+      return res.status(400).json({ success: false, message: "Mật khẩu mới không được trùng mật khẩu cũ" });
+    }
+
+    const hashedNew = await bcrypt.hash(matKhauMoi, 10);
+    taiKhoan.matKhau = hashedNew;
+    await taiKhoan.save();
+
+    return res.json({ success: true, message: "✅ Đổi mật khẩu thành công" });
+  } catch (err) {
+    console.error("❌ Lỗi đổi mật khẩu:", err);
+    return res.status(500).json({ success: false, message: "Lỗi server", error: err.message });
+  }
+};
+
+
+/**
+ * Quên mật khẩu
+ */
+exports.quenMatKhau = async (req, res) => {
+  const { maTK, maBenhNhan, email } = req.body;
+  const benhNhan = await BenhNhan.findByPk(maBenhNhan);
+  const taiKhoan = await TaiKhoan.findByPk(maTK);
+
+  if (!taiKhoan) {
+    return res.status(400).json({ success: false, message: "Tài khoản không tồn tại" });
+  }
+
+  if (!benhNhan || benhNhan.email !== email) {
+    return res.status(400).json({ success: false, message: "Email không khớp với bệnh nhân" });
+  }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  maXacThucMap[maTK] = code;
+
+  console.log(`✅ Mã xác thực gửi tới email ${email}: ${code}`);
+
+  return res.json({ success: true, message: "Mã xác thực đã gửi (demo)", maXacThuc: code });
 };

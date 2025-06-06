@@ -9,5 +9,6 @@ router.post("/", controller.create);                    // Tạo mới
 router.put("/:id", controller.update);                  // Cập nhật
 router.delete("/:id", controller.remove);               // Xoá
 router.get("/:maPK", controller.getByPK);           // Lấy theo mã phiếu khám
-
+// phieukham.js
+router.get("/by-month/:dotKhamBenh", controller.getByMonth);
 module.exports = router;

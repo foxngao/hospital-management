@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axiosClient";
 import toast from "react-hot-toast";
 
 function LoginPage() {
@@ -11,7 +11,8 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, form);
+       const res = await axios.post("/auth/login", form);
+
 
       if (res.data && res.data.token && res.data.user) {
         const { token, user } = res.data;

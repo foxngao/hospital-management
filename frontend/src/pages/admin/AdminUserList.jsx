@@ -1,6 +1,5 @@
-// 📁 src/pages/admin/AdminUserList.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axiosClient";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -13,13 +12,13 @@ function AdminUserList() {
   const fetchUsers = async (page = 1, limit = 10) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/tai-khoan`, {
+      const res = await axios.get("/tai-khoan", {
         headers: { Authorization: `Bearer ${token}` },
-        params: { page, limit }, // Gửi tham số phân trang
+        params: { page, limit },
       });
       setUsers(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (err) {
-      console.error("Error fetching users:", err); // Log lỗi chi tiết
+      console.error("Error fetching users:", err);
       toast.error(err.response?.data?.message || "Không thể tải danh sách tài khoản");
     } finally {
       setLoading(false);
@@ -37,13 +36,13 @@ function AdminUserList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/tai-khoan/${id}`, {
+      await axios.delete(`/tai-khoan/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Đã xóa tài khoản");
       fetchUsers();
     } catch (err) {
-      console.error("Error deleting user:", err); // Log lỗi chi tiết
+      console.error("Error deleting user:", err);
       toast.error(err.response?.data?.message || "Lỗi khi xóa tài khoản");
     }
   };
@@ -79,6 +78,7 @@ function AdminUserList() {
             {commonColumns}
             {role === "BACSI" && (
               <>
+                <th className="p-2">Mã BS</th>
                 <th className="p-2">Khoa</th>
                 <th className="p-2">Chuyên môn</th>
                 <th className="p-2">Chức vụ</th>
@@ -87,6 +87,7 @@ function AdminUserList() {
             )}
             {role === "NHANSU" && (
               <>
+                <th className="p-2">Mã NS</th>
                 <th className="p-2">Khoa</th>
                 <th className="p-2">Loại</th>
                 <th className="p-2">Chuyên môn</th>
@@ -95,6 +96,7 @@ function AdminUserList() {
             )}
             {role === "BENHNHAN" && (
               <>
+                <th className="p-2">Mã BN</th>
                 <th className="p-2">Họ tên</th>
                 <th className="p-2">Giới tính</th>
                 <th className="p-2">Ngày sinh</th>
@@ -112,8 +114,10 @@ function AdminUserList() {
               <td className="p-2">{user.tenDangNhap}</td>
               <td className="p-2">{user.email}</td>
               <td className="p-2">{user.trangThai === 1 ? "Hoạt động" : "Đã khóa"}</td>
+
               {role === "BACSI" && (
                 <>
+                  <td className="p-2">{user.maBS || "-"}</td>
                   <td className="p-2">{user.tenKhoa || user.maKhoa || "-"}</td>
                   <td className="p-2">{user.chuyenMon || "-"}</td>
                   <td className="p-2">{user.chucVu || "-"}</td>
@@ -122,6 +126,7 @@ function AdminUserList() {
               )}
               {role === "NHANSU" && (
                 <>
+                  <td className="p-2">{user.maNS || "-"}</td>
                   <td className="p-2">{user.tenKhoa || user.maKhoa || "-"}</td>
                   <td className="p-2">{user.loaiNS || "-"}</td>
                   <td className="p-2">{user.chuyenMon || "-"}</td>
@@ -130,6 +135,7 @@ function AdminUserList() {
               )}
               {role === "BENHNHAN" && (
                 <>
+                  <td className="p-2">{user.maBN || "-"}</td>
                   <td className="p-2">{user.hoTen || "-"}</td>
                   <td className="p-2">{user.gioiTinh || "-"}</td>
                   <td className="p-2">{user.ngaySinh || "-"}</td>
@@ -145,7 +151,6 @@ function AdminUserList() {
                 >
                   Sửa
                 </Link>
-
                 <button
                   onClick={() => handleDelete(user.maTK)}
                   className="text-red-600 hover:underline"

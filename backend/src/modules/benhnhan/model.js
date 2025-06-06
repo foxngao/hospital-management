@@ -1,18 +1,47 @@
 const db = require("../../models");
 const { DataTypes } = require("sequelize");
+const { v4: uuidv4 } = require('uuid');
 
-const BenhNhan = db.sequelize.define("BenhNhan", {
-  maBN: { type: DataTypes.STRING, primaryKey: true },
-  maTK: { type: DataTypes.STRING },
-  hoTen: { type: DataTypes.STRING },
-  ngaySinh: { type: DataTypes.DATEONLY },
-  gioiTinh: { type: DataTypes.STRING },
-  diaChi: { type: DataTypes.STRING },
-  soDienThoai: { type: DataTypes.STRING },
-  bhyt: { type: DataTypes.STRING }
+
+const BenhNhan = sequelize.define('BenhNhan', {
+  maBN: {
+    type: DataTypes.STRING,
+    primaryKey: true,
+    defaultValue: () => 'BN' + uuidv4().slice(0, 6).toUpperCase()
+  },
+  hoTen: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  gioiTinh: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  ngaySinh: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  diaChi: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  soDienThoai: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  bhyt: {
+    type: DataTypes.STRING,
+    unique: true
+  },
+  maTK: {
+  type: DataTypes.STRING,
+  allowNull: false
+},
+
 }, {
-  tableName: "BenhNhan",
-  timestamps: false,
+  tableName: 'BenhNhan',
+  timestamps: false
 });
 
 BenhNhan.associate = (models) => {

@@ -1,4 +1,3 @@
-// CONTROLLER: Xử lý lịch làm việc của bác sĩ (Bảng: LichLamViec)
 const { v4: uuidv4 } = require("uuid");
 const { LichLamViec } = require("./model");
 
@@ -13,7 +12,7 @@ exports.getAll = async (req, res) => {
   }
 };
 
-// ✅ Lấy lịch làm việc theo mã nhân sự (cũ - vẫn giữ nếu frontend khác dùng)
+// ✅ Lấy lịch làm việc theo mã nhân sự
 exports.getByNhanSu = async (req, res) => {
   try {
     const { maNS } = req.params;
@@ -28,7 +27,7 @@ exports.getByNhanSu = async (req, res) => {
   }
 };
 
-// ✅ Lấy lịch làm việc theo mã bác sĩ (maBS) – dùng cho frontend hiện tại
+// ✅ Lấy lịch làm việc theo mã bác sĩ
 exports.getByBacSi = async (req, res) => {
   try {
     const { maBS } = req.params;
@@ -43,7 +42,7 @@ exports.getByBacSi = async (req, res) => {
   }
 };
 
-// ✅ Tạo mới lịch làm việc
+// ✅ Tạo mới lịch làm việc (Fix lỗi FK maBS undefined)
 exports.create = async (req, res) => {
   try {
     const { maNS, maCa, ngayLamViec, maBS } = req.body;
@@ -55,8 +54,8 @@ exports.create = async (req, res) => {
       maLichLV,
       maCa,
       ngayLamViec,
-      maNS,
-      maBS, // BẮT BUỘC phải có
+      maNS: maNS && maNS !== 'undefined' ? maNS : null,
+      maBS: maBS && maBS !== 'undefined' ? maBS : null
     });
 
     res.status(201).json({ message: "Tạo lịch làm việc thành công", data: newData });
@@ -66,13 +65,21 @@ exports.create = async (req, res) => {
   }
 };
 
-// ✅ Cập nhật lịch làm việc
+// ✅ Cập nhật lịch làm việc (Fix lỗi FK maBS undefined)
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { maCa, ngayLamViec } = req.body;
+    const { maCa, ngayLamViec, maNS, maBS } = req.body;
 
-    const [updated] = await LichLamViec.update({ maCa, ngayLamViec }, { where: { maLichLV: id } });
+    const [updated] = await LichLamViec.update(
+      {
+        maCa,
+        ngayLamViec,
+        maNS: maNS && maNS !== 'undefined' ? maNS : null,
+        maBS: maBS && maBS !== 'undefined' ? maBS : null
+      },
+      { where: { maLichLV: id } }
+    );
 
     if (!updated) return res.status(404).json({ message: "Không tìm thấy lịch để cập nhật" });
 

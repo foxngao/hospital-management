@@ -1,16 +1,11 @@
 const db = require("../../models");
 const { v4: uuidv4 } = require("uuid");
-
-const HoSoBenhAn = db.HoSoBenhAn;
+const HoSo = db.HoSoBenhAn;
 const BenhNhan = db.BenhNhan;
-const DonThuoc = db.DonThuoc;
-const ChiTietDonThuoc = db.ChiTietDonThuoc;
-const PhieuKham = db.PhieuKham;
-const PhieuXetNghiem = db.PhieuXetNghiem;
 
 exports.getAll = async (req, res) => {
   try {
-    const data = await HoSoBenhAn.findAll({
+    const data = await HoSo.findAll({
       include: [BenhNhan],
       order: [["ngayLap", "DESC"]],
     });
@@ -25,7 +20,7 @@ exports.create = async (req, res) => {
   try {
     const { maBN, dotKhamBenh, lichSuBenh, ghiChu } = req.body;
     const maHSBA = uuidv4().slice(0, 8).toUpperCase();
-    const created = await HoSoBenhAn.create({
+    const created = await HoSo.create({
       maHSBA,
       maBN,
       dotKhamBenh,
@@ -40,58 +35,13 @@ exports.create = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
-  const { id } = req.params;
-  const transaction = await db.sequelize.transaction();
-
   try {
-    // 1. Lấy tất cả đơn thuốc thuộc HSBA
-    const donThuocList = await DonThuoc.findAll({
-      where: { maHSBA: id },
-      transaction,
-    });
-    const maDTList = donThuocList.map((dt) => dt.maDT);
-
-    // 2. Xoá chi tiết đơn thuốc
-    if (maDTList.length > 0) {
-      await ChiTietDonThuoc.destroy({
-        where: { maDT: maDTList },
-        transaction,
-      });
-    }
-
-    // 3. Xoá đơn thuốc
-    await DonThuoc.destroy({
-      where: { maHSBA: id },
-      transaction,
-    });
-
-    // 4. Xoá phiếu khám
-    await PhieuKham.destroy({
-      where: { maHSBA: id },
-      transaction,
-    });
-
-    // 5. Xoá phiếu xét nghiệm
-    await PhieuXetNghiem.destroy({
-      where: { maHSBA: id },
-      transaction,
-    });
-
-    // 6. Xoá hồ sơ bệnh án
-    const deleted = await HoSoBenhAn.destroy({
-      where: { maHSBA: id },
-      transaction,
-    });
-
+    const deleted = await HoSo.destroy({ where: { maHSBA: req.params.id } });
     if (!deleted) {
-      await transaction.rollback();
       return res.status(404).json({ success: false, message: "Không tìm thấy hồ sơ" });
     }
-
-    await transaction.commit();
-    res.json({ success: true, message: "Đã xoá toàn bộ hồ sơ, đơn thuốc, phiếu khám và xét nghiệm liên quan" });
+    res.json({ success: true, message: "Đã xoá hồ sơ bệnh án" });
   } catch (err) {
-    await transaction.rollback();
     console.error("❌ Lỗi Sequelize:", err);
     res.status(500).json({ success: false, message: "Lỗi xoá hồ sơ", error: err.message });
   }
@@ -102,7 +52,7 @@ exports.getByBenhNhan = async (req, res) => {
     const maBN = req.params.maBN || req.user?.maBN;
     if (!maBN) return res.status(400).json({ message: "Thiếu mã bệnh nhân" });
 
-    const data = await HoSoBenhAn.findAll({
+    const data = await HoSo.findAll({
       where: { maBN },
       include: [BenhNhan],
       order: [["ngayLap", "DESC"]],
@@ -114,3 +64,60 @@ exports.getByBenhNhan = async (req, res) => {
     res.status(500).json({ message: "Lỗi truy xuất hồ sơ", error: err.message });
   }
 };
+
+
+exports.createByBenhNhan = async (req, res) => {
+  try {
+    const { maBN } = req.body;
+    if (!maBN) return res.status(400).json({ success: false, message: "Thiếu mã bệnh nhân" });
+
+    const today = new Date().toISOString().slice(0, 10); // yyyy-MM-dd
+    const dot = new Date().toISOString().slice(0, 7);
+
+    // Kiểm tra trùng mã
+    const existed = await db.HoSoBenhAn.findOne({ where: { maBN } });
+    if (existed) {
+      return res.status(200).json({ success: true, message: "Đã có hồ sơ", data: existed });
+    }
+
+    // ✅ FIX: tự khởi tạo dotKhamBenh = 0, các trường khác NULL
+    const hoso = await db.HoSoBenhAn.create({
+      maHSBA: maBN,
+      maBN,
+      ngayLap: today,
+      dotKhamBenh: dot,
+      lichSuBenh: null,
+      ghiChu: null
+    });
+
+    return res.status(201).json({ success: true, message: "✅ Tạo hồ sơ bệnh án thành công", data: hoso });
+  } catch (err) {
+    console.error("❌ Lỗi tạo HSBA:", err);
+    return res.status(500).json({ success: false, message: "Lỗi server", error: err.message });
+  }
+};
+
+
+exports.getByMaBN = async (req, res) => {
+  try {
+    const { maHSBA } = req.params;
+    if (!maHSBA) return res.status(400).json({ success: false, message: "Thiếu mã bệnh nhân" });
+
+    const data = await db.HoSoBenhAn.findOne({
+      where: {
+          maHSBA: maHSBA  // Truy tìm đúng trường trong CSDL
+        }
+    } );
+
+    if (!data) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy hồ sơ bệnh án" });
+    }
+
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    console.error("❌ Lỗi lấy hồ sơ:", err);
+    return res.status(500).json({ success: false, message: "Lỗi server", error: err.message });
+  }
+};
+
+

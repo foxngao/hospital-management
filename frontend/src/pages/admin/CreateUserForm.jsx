@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../../api/axiosClient";
 import toast from "react-hot-toast";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
@@ -34,7 +34,7 @@ function CreateUserForm({ onSuccess }) {
 
   const fetchKhoa = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/khoa`, {
+      const res = await axios.get("/khoa", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDsKhoa(Array.isArray(res.data.data) ? res.data.data : res.data);
@@ -48,10 +48,10 @@ function CreateUserForm({ onSuccess }) {
     if (isEdit) {
       if (userFromState) {
         setForm({
-          tenDangNhap: userFromState.tenDangNhap,
+          tenDangNhap: userFromState.tenDangNhap || "",
           matKhau: "",
-          email: userFromState.email,
-          vaiTro: userFromState.maNhom,
+          email: userFromState.email || "",
+          vaiTro: userFromState.maNhom || "",
           maKhoa: userFromState.maKhoa || "",
           loaiNS: userFromState.loaiNS || "",
           capBac: userFromState.capBac || "",
@@ -67,27 +67,28 @@ function CreateUserForm({ onSuccess }) {
         });
       } else {
         axios
-          .get(`${import.meta.env.VITE_API_URL}/api/tai-khoan/${id}`, {
+          .get(`/tai-khoan/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((res) => {
+            const u = res.data;
             setForm({
-              tenDangNhap: res.data.tenDangNhap,
+              tenDangNhap: u.tenDangNhap || "",
               matKhau: "",
-              email: res.data.email,
-              vaiTro: res.data.maNhom,
-              maKhoa: res.data.maKhoa || "",
-              loaiNS: res.data.loaiNS || "",
-              capBac: res.data.capBac || "",
-              chuyenMon: res.data.chuyenMon || "",
-              hoTen: res.data.hoTen || "",
-              trinhDo: res.data.trinhDo || "",
-              chucVu: res.data.chucVu || "",
-              ngaySinh: res.data.ngaySinh || "",
-              gioiTinh: res.data.gioiTinh || "",
-              diaChi: res.data.diaChi || "",
-              soDienThoai: res.data.soDienThoai || "",
-              bhyt: res.data.bhyt || ""
+              email: u.email || "",
+              vaiTro: u.maNhom || "",
+              maKhoa: u.maKhoa || "",
+              loaiNS: u.loaiNS || "",
+              capBac: u.capBac || "",
+              chuyenMon: u.chuyenMon || "",
+              hoTen: u.hoTen || "",
+              trinhDo: u.trinhDo || "",
+              chucVu: u.chucVu || "",
+              ngaySinh: u.ngaySinh || "",
+              gioiTinh: u.gioiTinh || "",
+              diaChi: u.diaChi || "",
+              soDienThoai: u.soDienThoai || "",
+              bhyt: u.bhyt || ""
             });
           })
           .catch(() => toast.error("Không tải được thông tin tài khoản"));
@@ -141,13 +142,13 @@ function CreateUserForm({ onSuccess }) {
 
     try {
       if (isEdit) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/tai-khoan/${id}`, payload, {
+        await axios.put(`/tai-khoan/${id}`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Cập nhật tài khoản thành công");
         navigate("/admin/taikhoan");
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/tai-khoan`, payload, {
+        await axios.post("/tai-khoan", payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Tạo tài khoản thành công");
@@ -169,7 +170,7 @@ function CreateUserForm({ onSuccess }) {
       )}
 
       <select name="vaiTro" value={form.vaiTro} onChange={handleChange} className="border p-2 w-full rounded">
-       {/* <option value="ADMIN">Admin</option> */}
+        <option value="">-- Chọn vai trò --</option>
         <option value="BACSI">Bác sĩ</option>
         <option value="NHANSU">Nhân viên y tế</option>
         <option value="BENHNHAN">Bệnh nhân</option>

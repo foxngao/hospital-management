@@ -36,8 +36,17 @@ const LichKham = sequelize.define("LichKham", {
 });
 
 LichKham.associate = (models) => {
-  LichKham.belongsTo(models.BenhNhan, { foreignKey: "maBN" });
-  LichKham.belongsTo(models.BacSi, { foreignKey: "maBS" });
+  LichKham.belongsTo(models.BenhNhan, {
+    foreignKey: "maBN",
+    onDelete: "CASCADE",
+    hooks: true
+  });
+
+  LichKham.belongsTo(models.BacSi, {
+    foreignKey: "maBS",
+    onDelete: "CASCADE", // Quan trọng
+    hooks: true
+  });
 };
 
 module.exports = LichKham;

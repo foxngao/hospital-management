@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axiosClient";
 import toast from "react-hot-toast";
 
 function RegisterPage() {
@@ -18,7 +18,7 @@ function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, form);
+      await axios.post("/auth/register", form);
       toast.success("Đăng ký thành công!");
       navigate("/login");
     } catch (err) {

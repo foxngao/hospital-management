@@ -1,31 +1,36 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/sequelize');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/sequelize");
 
-const LichLamViec = sequelize.define('LichLamViec', {
+const LichLamViec = sequelize.define("LichLamViec", {
   maLichLV: {
     type: DataTypes.STRING(100),
-    primaryKey: true
+    primaryKey: true,
   },
   maNS: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: true, // ✅ cho phép null nếu không phải nhân sự y tế
+  },
+  maBS: {
+    type: DataTypes.STRING(100),
+    allowNull: true, // ✅ FIX CHỖ NÀY: để null nếu không phải bác sĩ
   },
   maCa: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: false,
   },
   ngayLamViec: {
     type: DataTypes.DATE,
-    allowNull: false
-  }
+    allowNull: false,
+  },
 }, {
-  tableName: 'LichLamViec',
-  timestamps: false
+  tableName: "LichLamViec",
+  timestamps: false,
 });
 
 LichLamViec.associate = (models) => {
-  LichLamViec.belongsTo(models.NhanSuYTe, { foreignKey: 'maNS' });
-  LichLamViec.belongsTo(models.CaKham, { foreignKey: 'maCa' });
+  LichLamViec.belongsTo(models.BacSi, { foreignKey: "maBS" });
+  LichLamViec.belongsTo(models.NhanSuYTe, { foreignKey: "maNS" });
+  LichLamViec.belongsTo(models.CaKham, { foreignKey: "maCa" });
 };
 
 module.exports = LichLamViec;

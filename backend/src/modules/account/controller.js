@@ -1,13 +1,34 @@
 const { validationResult } = require("express-validator");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
+
 const {
   TaiKhoan,
   BacSi,
   NhanSuYTe,
   BenhNhan,
-  KhoaPhong
+  KhoaPhong, // ✅ BỔ SUNG DÒNG NÀY
+  HoSoBenhAn,
+  LichKham,
+  YeuCauXetNghiem,
+  HoaDon,
+  GioHang,
+  PhanHoi,
+  PhieuXetNghiem,
+  LichLamViec,
+  PhieuKham,
+  DonThuoc,
+  TinTuc,
+  TroLyBacSi,
+  ChiTietDonThuoc,
+  ChiTietHoaDon,
+  ChiTietGioHang
 } = require("../../models");
+
+
+
+
+
 
 // Tạo mới tài khoản
 exports.register = async (req, res) => {
@@ -102,25 +123,124 @@ exports.update = async (req, res) => {
 };
 
 // Xoá tài khoản
+// 📌 Xoá tài khoản và dữ liệu liên quan theo vai trò
+// Xoá tài khoản và toàn bộ dữ liệu liên quan
+const { Op } = require("sequelize");
+
 exports.remove = async (req, res) => {
   try {
     const maTK = req.params.id;
+    const acc = await TaiKhoan.findOne({ where: { maTK } });
 
-    await BenhNhan.destroy({ where: { maTK } });
-    await BacSi.destroy({ where: { maTK } });
-    await NhanSuYTe.destroy({ where: { maTK } });
+    if (!acc) return res.status(404).json({ message: "Không tìm thấy tài khoản" });
 
-    const deleted = await TaiKhoan.destroy({ where: { maTK } });
-    if (deleted === 0)
-      return res.status(404).json({ message: "Không tìm thấy tài khoản để xoá" });
+    const maNhom = acc.maNhom.toUpperCase();
 
-    res.json({ message: "Xoá thành công" });
+    // 🧑‍⚕️ BÁC SĨ
+    if (maNhom === "BACSI") {
+  const maBS = maTK;
+
+  // ✅ Xoá tất cả trợ lý liên kết bác sĩ này
+  await TroLyBacSi.destroy({ where: { maBacSi: maBS } });
+
+  // ✅ Xoá lịch làm việc, khám bệnh, lịch hẹn, xét nghiệm
+  await LichLamViec.destroy({ where: { maBS } });
+  await PhieuKham.destroy({ where: { maBS } });
+  await YeuCauXetNghiem.destroy({ where: { maBS } });
+  await LichKham.destroy({ where: { maBS } });
+
+  // ✅ Xoá đơn thuốc + chi tiết
+  const donThuocList = await DonThuoc.findAll({ where: { maBS } });
+  const maDTList = donThuocList.map((dt) => dt.maDT);
+  if (maDTList.length > 0) {
+    await ChiTietDonThuoc.destroy({ where: { maDT: { [Op.in]: maDTList } } });
+    await DonThuoc.destroy({ where: { maDT: { [Op.in]: maDTList } } });
+  }
+
+  // ✅ Xoá hồ sơ bác sĩ
+  await BacSi.destroy({ where: { maTK: maBS } });
+}
+
+
+    // 🧑‍💼 NHÂN SỰ Y TẾ
+    else if (maNhom === "NHANSU") {
+      const maNS = maTK;
+
+      await TinTuc.destroy({ where: { maNS } });
+      await LichLamViec.destroy({ where: { maNS } });
+      await PhieuXetNghiem.destroy({ where: { maNS } });
+      await TroLyBacSi.destroy({ where: { maNS } });
+
+      const hoaDonList = await HoaDon.findAll({ where: { maNS } });
+      const maHDList = hoaDonList.map((hd) => hd.maHD);
+      if (maHDList.length > 0) {
+        await ChiTietHoaDon.destroy({ where: { maHD: { [Op.in]: maHDList } } });
+        await HoaDon.destroy({ where: { maHD: { [Op.in]: maHDList } } });
+      }
+
+      await NhanSuYTe.destroy({ where: { maTK: maNS } });
+    }
+
+    // 🧑‍🦱 BỆNH NHÂN
+    else if (maNhom === "BENHNHAN") {
+      const maBN = maTK;
+
+      const hoSoList = await HoSoBenhAn.findAll({ where: { maBN } });
+      const maHSBAList = hoSoList.map(hs => hs.maHSBA);
+
+      // DonThuoc → ChiTietDonThuoc
+      const donThuocList = await DonThuoc.findAll({ where: { maHSBA: { [Op.in]: maHSBAList } } });
+      const maDTList = donThuocList.map(dt => dt.maDT);
+      if (maDTList.length > 0) {
+        await ChiTietDonThuoc.destroy({ where: { maDT: { [Op.in]: maDTList } } });
+        await DonThuoc.destroy({ where: { maDT: { [Op.in]: maDTList } } });
+      }
+
+      await PhieuKham.destroy({ where: { maBN } });
+      await PhieuXetNghiem.destroy({ where: { maHSBA: { [Op.in]: maHSBAList } } });
+      await HoSoBenhAn.destroy({ where: { maBN } });
+
+      await YeuCauXetNghiem.destroy({ where: { maBN } });
+      await LichKham.destroy({ where: { maBN } });
+
+      const hoaDonList = await HoaDon.findAll({ where: { maBN } });
+      const maHDList = hoaDonList.map((hd) => hd.maHD);
+      if (maHDList.length > 0) {
+        await ChiTietHoaDon.destroy({ where: { maHD: { [Op.in]: maHDList } } });
+        await HoaDon.destroy({ where: { maHD: { [Op.in]: maHDList } } });
+      }
+
+      const gioHangList = await GioHang.findAll({ where: { maBN } });
+      const maGHList = gioHangList.map((gh) => gh.maGH);
+      if (maGHList.length > 0) {
+        await ChiTietGioHang.destroy({ where: { maGH: { [Op.in]: maGHList } } });
+        await GioHang.destroy({ where: { maGH: { [Op.in]: maGHList } } });
+      }
+
+      await PhanHoi.destroy({ where: { maBN } });
+      await BenhNhan.destroy({ where: { maTK: maBN } });
+    }
+
+    // ✅ Cuối cùng xoá tài khoản
+    await TaiKhoan.destroy({ where: { maTK } });
+
+    res.json({ message: `✅ Đã xoá tài khoản ${maTK} và toàn bộ dữ liệu liên quan.` });
   } catch (error) {
     console.error("❌ Lỗi khi xoá:", error.message);
-    res.status(500).json({ message: "Lỗi khi xoá", error: error.message });
+    res.status(500).json({
+      message: "Lỗi khi xoá tài khoản (có thể còn dữ liệu ràng buộc chưa xử lý).",
+      error: error.message
+    });
   }
 };
+
+
+
+
+
+
 // Lấy danh sách tài khoản
+// Lấy danh sách tài khoản (kèm theo thông tin bác sĩ / nhân sự / bệnh nhân)
 exports.getAll = async (req, res) => {
   try {
     const danhSach = await TaiKhoan.findAll({
@@ -139,7 +259,8 @@ exports.getAll = async (req, res) => {
           model: BenhNhan,
           attributes: ["maBN", "hoTen", "gioiTinh", "ngaySinh", "soDienThoai", "bhyt", "diaChi"]
         }
-      ]
+      ],
+      order: [["tenDangNhap", "ASC"]]
     });
 
     const ketQua = danhSach.map((tk) => ({
@@ -148,12 +269,21 @@ exports.getAll = async (req, res) => {
       email: tk.email,
       maNhom: tk.maNhom,
       trangThai: tk.trangThai,
+
+      // 👉 Thêm MÃ chính xác
+      maBS: tk.BacSi?.maBS || null,
+      maNS: tk.NhanSuYTe?.maNS || null,
+      maBN: tk.BenhNhan?.maBN || null,
+
+
+      // Thông tin từ bảng phụ
       tenKhoa: tk.BacSi?.KhoaPhong?.tenKhoa || tk.NhanSuYTe?.KhoaPhong?.tenKhoa || null,
       chuyenMon: tk.BacSi?.chuyenMon || tk.NhanSuYTe?.chuyenMon || null,
       chucVu: tk.BacSi?.chucVu || null,
       trinhDo: tk.BacSi?.trinhDo || null,
       loaiNS: tk.NhanSuYTe?.loaiNS || null,
       capBac: tk.NhanSuYTe?.capBac || null,
+
       hoTen: tk.BenhNhan?.hoTen || tk.BacSi?.hoTen || tk.NhanSuYTe?.hoTen || null,
       gioiTinh: tk.BenhNhan?.gioiTinh || null,
       ngaySinh: tk.BenhNhan?.ngaySinh || null,
@@ -162,7 +292,11 @@ exports.getAll = async (req, res) => {
       bhyt: tk.BenhNhan?.bhyt || null
     }));
 
-    res.json(ketQua);
+    // ✅ TRẢ VỀ CHUẨN
+    res.json({
+      message: "Lấy danh sách tài khoản thành công",
+      data: ketQua
+    });
   } catch (error) {
     console.error("❌ Lỗi chính trong TaiKhoan.findAll:", error.message);
     res.status(500).json({ message: "Lỗi lấy danh sách tài khoản", error: error.message });

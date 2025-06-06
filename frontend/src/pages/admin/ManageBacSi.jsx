@@ -1,6 +1,6 @@
 // 📁 src/pages/admin/ManageBacSi.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axiosClient";
 import toast from "react-hot-toast";
 
 function ManageBacSi() {
@@ -11,7 +11,7 @@ function ManageBacSi() {
 
   const fetchBacSi = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/bacsi`, {
+      const res = await axios.get(`/bacsi`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("BacSi API response:", res.data);
@@ -23,7 +23,7 @@ function ManageBacSi() {
 
   const fetchKhoa = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/khoa`, {
+      const res = await axios.get(`/khoa`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDsKhoa(Array.isArray(res.data.data) ? res.data.data : res.data);
@@ -44,7 +44,7 @@ function ManageBacSi() {
   const handleDelete = async (maBS) => {
     if (!window.confirm("Xác nhận xóa bác sĩ?")) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/bacsi/${maBS}`, {
+      await axios.delete(`/bacsi/${maBS}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Đã xóa bác sĩ");
@@ -62,7 +62,7 @@ function ManageBacSi() {
     e.preventDefault();
     if (!form) return;
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/bacsi/${form.maBS}`, form, {
+      await axios.put(`/bacsi/${form.maBS}`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Cập nhật bác sĩ thành công");
