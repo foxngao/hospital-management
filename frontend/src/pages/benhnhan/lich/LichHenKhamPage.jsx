@@ -28,19 +28,21 @@ const LichHenKhamPage = () => {
   }, []);
 
   const loadAll = async () => {
-    try {
-      const [lich, khoa, ca] = await Promise.all([
-        axios.get("/lichkham"),
-        axios.get("/khoa"),
-        axios.get("/catruc"),
-      ]);
-      setList(lich.data.data || []);
-      setKhoaList(khoa.data.data || []);
-      setCaKhamList(ca.data.data || []);
-    } catch (err) {
-      console.error("❌ Lỗi tải dữ liệu:", err);
-    }
-  };
+  try {
+    const maBN = localStorage.getItem("maBN");
+    const [lich, khoa, ca] = await Promise.all([
+      axios.get(`/lichkham/benhnhan/${maBN}`),
+      axios.get("/khoa"),
+      axios.get("/catruc"),
+    ]);
+    setList(lich.data.data || []);
+    setKhoaList(khoa.data.data || []);
+    setCaKhamList(ca.data.data || []);
+  } catch (err) {
+    console.error("❌ Lỗi tải dữ liệu:", err);
+  }
+};
+
 
   const handleKhoaChange = async (e) => {
     const maKhoa = e.target.value;

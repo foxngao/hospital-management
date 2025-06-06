@@ -36,6 +36,37 @@ const BacSi = sequelize.define('BacSi', {
 BacSi.associate = (models) => {
   BacSi.belongsTo(models.TaiKhoan, { foreignKey: 'maTK' });
   BacSi.belongsTo(models.KhoaPhong, { foreignKey: 'maKhoa' });
+
+  // ✅ Ràng buộc xoá cascade các bảng phụ thuộc
+  BacSi.hasMany(models.LichKham, {
+    foreignKey: 'maBS',
+    onDelete: 'CASCADE',
+    hooks: true
+  });
+
+  BacSi.hasMany(models.YeuCauXetNghiem, {
+    foreignKey: 'maBS',
+    onDelete: 'CASCADE',
+    hooks: true
+  });
+
+  BacSi.hasMany(models.PhieuKham, {
+    foreignKey: 'maBS',
+    onDelete: 'CASCADE',
+    hooks: true
+  });
+
+  BacSi.hasMany(models.DonThuoc, {
+    foreignKey: 'maBS',
+    onDelete: 'CASCADE',
+    hooks: true
+  });
+
+  BacSi.hasMany(models.LichLamViec, {
+    foreignKey: 'maBS',
+    onDelete: 'CASCADE',
+    hooks: true
+  });
 };
 
 module.exports = BacSi;

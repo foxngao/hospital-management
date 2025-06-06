@@ -7,5 +7,8 @@ router.get("/", controller.getAll);
 router.post("/", controller.create);
 router.post("/chitiet", controller.addChiTiet);
 router.get("/chitiet/:maDT", controller.getChiTiet);
+// donthuoc.js
+router.get("/by-month/:dotKhamBenh", controller.getByMonth);
+
 
 module.exports = router;

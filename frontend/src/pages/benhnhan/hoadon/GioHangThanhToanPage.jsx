@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import dayjs from "dayjs"; // ✅ Thêm thư viện format ngày
+import dayjs from "dayjs"; //  Thêm thư viện format ngày
 import {
   getGioHang,
   addToGioHang,
@@ -18,7 +18,7 @@ import {
 } from "../../../services/hoadon_BN/dichVuService";
 
 const GioHangThanhToanPage = () => {
-  const maBN = localStorage.getItem("maTK");
+  const maBN = localStorage.getItem("maBN");
   const maNS = localStorage.getItem("maTK");
 
   const [gioHang, setGioHang] = useState([]);

@@ -1,6 +1,6 @@
 // 📁 src/pages/admin/ManageBenhNhan.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axiosClient";
 import toast from "react-hot-toast";
 
 function ManageBenhNhan() {
@@ -10,7 +10,7 @@ function ManageBenhNhan() {
 
   const fetchBenhNhan = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/benhnhan`, {
+      const res = await axios.get(`/benhnhan`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDsBenhNhan(Array.isArray(res.data.data) ? res.data.data : res.data);
@@ -30,7 +30,7 @@ function ManageBenhNhan() {
   const handleDelete = async (maBN) => {
     if (!window.confirm("Xác nhận xóa bệnh nhân?")) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/benhnhan/${maBN}`, {
+      await axios.delete(`/benhnhan/${maBN}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Đã xóa bệnh nhân");
@@ -48,7 +48,7 @@ function ManageBenhNhan() {
     e.preventDefault();
     if (!form) return;
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/benhnhan/${form.maBN}`, form, {
+      await axios.put(`/benhnhan/${form.maBN}`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Cập nhật bệnh nhân thành công");

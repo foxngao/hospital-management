@@ -3,6 +3,8 @@ const router = express.Router();
 const { body } = require("express-validator");
 const controller = require("./controller");
 
+const authMiddleware = require("../../middleware/auth"); // ✅ thêm
+
 /**
  * Middleware kiểm tra đầu vào cho đăng ký
  */
@@ -39,8 +41,10 @@ const loginValidator = [
 // Định tuyến
 router.post("/register", registerValidator, controller.register);
 router.post("/login", loginValidator, controller.login);
-
-
+router.get("/ma-xac-thuc/:maTaiKhoan", controller.taoMaXacThuc);
+router.post("/doi-mat-khau", controller.doiMatKhau);
+router.post("/quenmatkhau", controller.quenMatKhau);
+router.get("/me", authMiddleware, controller.getCurrentUser);
 
 
 

@@ -66,3 +66,20 @@ exports.getChiTiet = async (req, res) => {
     res.status(500).json({ message: "Lỗi lấy chi tiết", error: err.message });
   }
 };
+
+exports.getByMonth = async (req, res) => {
+  const dot = req.params.dotKhamBenh;
+  try {
+    const result = await db.DonThuoc.findAll({
+      where: {
+        ngayKeDon: {
+          [Op.startsWith]: dot
+        }
+      }
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi truy xuất đơn thuốc", error: err.message });
+  }
+};
+

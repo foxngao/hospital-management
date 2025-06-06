@@ -22,6 +22,10 @@ const LichKham = db.sequelize.define("LichKham", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  tenKhoa: {
+  type: DataTypes.STRING,
+  allowNull: false
+},
   phong: {
     type: DataTypes.STRING,
     allowNull: true,

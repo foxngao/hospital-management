@@ -91,3 +91,22 @@ exports.getByPK = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+
+// Lọc phiếu khám theo hồ sơ và đợt khám
+exports.getByMonth = async (req, res) => {
+  const dot = req.params.dotKhamBenh; // dạng: '2025-06'
+  try {
+    const result = await db.PhieuKham.findAll({
+      where: {
+        ngayKham: {
+          [Op.startsWith]: dot
+        }
+      }
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi truy xuất phiếu khám", error: err.message });
+  }
+};
+
+
